@@ -1,0 +1,88 @@
+.panel {
+  padding: var(--s-2) var(--s-5);
+  border-radius: var(--r-xl) !important;
+}
+
+.scroller {
+  overflow-x: auto;
+  border-radius: var(--r-lg);
+}
+
+.table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: var(--t-sub);
+}
+
+.table th,
+.table td {
+  padding: var(--s-4) var(--s-4) var(--s-4) 0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table tbody tr + tr > * {
+  border-top: 0.5px solid var(--separator);
+}
+
+.table thead th {
+  font-weight: 600;
+  font-size: var(--t-footnote);
+  color: var(--label-2);
+}
+
+.table thead th[data-ours="true"] {
+  color: var(--red);
+}
+
+.table tbody th {
+  width: 16%;
+  font-weight: 600;
+}
+
+.table td {
+  width: 34%;
+  color: var(--label-2);
+}
+
+.table td[data-ours] {
+  width: 50%;
+  color: var(--label);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-4);
+  margin: var(--s-4) 0 0;
+}
+
+.metrics > div {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: var(--s-2);
+  min-height: 140px;
+  padding: var(--s-5);
+  border-radius: var(--r-xl) !important;
+}
+
+.metrics dd {
+  margin: 0;
+  font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.metrics dt {
+  font-size: var(--t-footnote);
+  color: var(--label-2);
+}
+
+@media (max-width: 760px) {
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+}

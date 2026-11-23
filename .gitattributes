@@ -1,2 +1,16 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Large binaries go through Git LFS (GitHub refuses files over 100 MB; two splats and both model weights are larger).
+*.ksplat filter=lfs diff=lfs merge=lfs -text
+*.pt filter=lfs diff=lfs merge=lfs -text
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+
+# Small binaries stay in git.
+*.bin binary
+*.jpg binary
+*.png binary
+
+# Windows scripts keep CRLF.
+*.ps1 text eol=crlf
+*.cmd text eol=crlf

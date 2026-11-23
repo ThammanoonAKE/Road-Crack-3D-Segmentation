@@ -1,0 +1,16 @@
+# Python / Node
+__pycache__/
+*.pyc
+.venv*/
+node_modules/
+
+# Fetched or built locally (see README)
+third_party/
+export/colmap_pipeline/colmap_bin/
+export/colmap_pipeline/vocab/
+runs/
+data/
+
+# TensorRT artefacts are tied to one GPU and TensorRT version; rebuild them with edge_ai/trt_crack.py
+*.onnx
+*.engine

@@ -1,0 +1,6 @@
+# Tested with torch 2.13.0+cu130, torchvision 0.28.0, opencv-python 4.13, numpy 2.4 (Python 3.14).
+# Install torch/torchvision from https://pytorch.org for your CUDA version.
+torch>=2.0
+torchvision>=0.15
+opencv-python>=4.5
+numpy>=1.21

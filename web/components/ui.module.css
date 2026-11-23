@@ -1,0 +1,191 @@
+/* Shared primitives in the Liquid Glass language: capsule buttons, glass segmented control, iOS switch,
+   section scaffolding. Glass surfaces come from the global .lg / .lg-clear / .lg-thick materials. */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: 48px;
+  padding: 0 var(--s-5);
+  border: 0;
+  border-radius: var(--r-capsule);
+  font-size: var(--t-body);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    transform var(--dur) var(--spring),
+    background-color var(--dur-fast) var(--ease-out),
+    filter var(--dur-fast) var(--ease-out);
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+/* prominent: tinted red glass */
+.primary {
+  composes: btn;
+  position: relative;
+  color: #fff;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0) 55%),
+    var(--red-fill);
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / 0.45),
+    inset 0 -1px 2px rgb(0 0 0 / 0.18),
+    0 10px 30px -8px rgb(217 48 42 / 0.65);
+}
+
+.primary:hover {
+  filter: brightness(1.06);
+}
+
+.primary:active {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0) 55%),
+    var(--red-fill-pressed);
+}
+
+/* secondary: clear glass capsule (add className "lg-clear" alongside) */
+.secondary {
+  composes: btn;
+  color: var(--label);
+  border-radius: var(--r-capsule) !important;
+}
+
+.secondary:hover {
+  filter: brightness(1.15);
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.section {
+  position: relative;
+  padding: var(--s-9) 0 0;
+}
+
+.head {
+  display: grid;
+  gap: var(--s-3);
+  max-width: 780px;
+  margin-bottom: var(--s-6);
+}
+
+.kicker {
+  font-size: var(--t-footnote);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--red);
+}
+
+.title {
+  font-size: var(--t-title1);
+}
+
+.lead {
+  font-size: var(--t-title3);
+  font-weight: 400;
+  color: var(--label-2);
+}
+
+/* segmented control: glass track, sliding glass thumb */
+.segmented {
+  position: relative;
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  padding: 3px;
+  border-radius: var(--r-capsule) !important;
+}
+
+.segThumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  z-index: 0;
+  border-radius: var(--r-capsule);
+  background: rgb(255 255 255 / 0.2);
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / 0.5),
+    0 2px 8px rgb(0 0 0 / 0.25);
+  transition:
+    transform var(--dur) var(--spring),
+    width var(--dur) var(--spring);
+}
+
+.segmented button {
+  position: relative;
+  z-index: 1;
+  min-height: 38px;
+  padding: 0 var(--s-4);
+  border: 0;
+  border-radius: var(--r-capsule);
+  background: transparent;
+  color: var(--label-2);
+  font-size: var(--t-footnote);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.segmented button[aria-pressed="true"],
+.segmented a[aria-current="page"] {
+  color: var(--label);
+}
+
+/* iOS switch */
+.switch {
+  position: relative;
+  flex: none;
+  width: 51px;
+  height: 31px;
+  border-radius: var(--r-capsule);
+  background: var(--fill);
+  transition: background-color var(--dur) var(--ease-out);
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 3px 8px rgb(0 0 0 / 0.15),
+    0 3px 1px rgb(0 0 0 / 0.06);
+  transition: transform var(--dur) var(--spring);
+}
+
+[aria-checked="true"] > .switch,
+.switch[data-on="true"] {
+  background: var(--red-fill);
+}
+
+[aria-checked="true"] > .switch::after,
+.switch[data-on="true"]::after {
+  transform: translateX(20px);
+}
+
+@media (max-width: 720px) {
+  .section {
+    padding-top: var(--s-8);
+  }
+}

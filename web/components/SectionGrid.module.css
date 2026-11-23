@@ -1,0 +1,233 @@
+.top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-6);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-4);
+  flex: none;
+  min-height: 52px;
+  margin-bottom: var(--s-6);
+  padding: 0 10px 0 var(--s-5);
+  border: 0;
+  border-radius: var(--r-capsule) !important;
+  font-size: var(--t-sub);
+  font-weight: 500;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border-radius: var(--r-xl) !important;
+  transition: transform var(--dur) var(--spring);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: calc(var(--r-xl) - 8px);
+  corner-shape: squircle;
+  background: #0b0b0d;
+}
+
+.img {
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--spring);
+}
+
+.on {
+  opacity: 0;
+  transition:
+    opacity var(--dur) var(--ease-out),
+    transform var(--dur-slow) var(--spring);
+}
+
+.card:hover .on,
+.card:focus-within .on,
+.grid[data-all="true"] .on {
+  opacity: 1;
+}
+
+.card:hover .img {
+  transform: scale(1.05);
+}
+
+.media .badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: var(--r-capsule) !important;
+  font-size: var(--t-caption);
+  font-weight: 500;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--s-3);
+  padding: var(--s-4) var(--s-3) var(--s-3);
+}
+
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
+.name {
+  font-size: var(--t-title3);
+}
+
+.pct {
+  font-size: var(--t-title3);
+  font-weight: 600;
+  color: var(--red);
+}
+
+.meter {
+  position: relative;
+  height: 6px;
+  border-radius: var(--r-capsule);
+  background: var(--fill);
+  overflow: hidden;
+}
+
+.meter > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: var(--r-capsule);
+  background: var(--red);
+}
+
+.facts {
+  display: grid;
+  margin: 0;
+  border-radius: var(--r-md);
+  background: rgb(255 255 255 / 0.05);
+}
+
+.facts > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: 9px var(--s-3);
+}
+
+.facts > div + div {
+  border-top: 0.5px solid var(--separator);
+}
+
+.facts dt {
+  font-size: var(--t-footnote);
+  color: var(--label-2);
+}
+
+.facts dd {
+  margin: 0;
+  font-size: var(--t-footnote);
+}
+
+.clip {
+  font-size: var(--t-caption);
+  color: var(--label-2);
+  word-break: break-all;
+}
+
+.open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  min-height: 44px;
+  margin-top: auto;
+  padding: 0 var(--s-4);
+  border-radius: var(--r-capsule);
+  background: var(--fill-2);
+  font-size: var(--t-sub);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+/* the whole card is the link's hit area */
+.open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-xl);
+}
+
+.card:hover .open {
+  background: var(--red-fill);
+}
+
+.open:focus-visible {
+  outline: none;
+}
+
+.open:focus-visible::after {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.open svg {
+  width: 18px;
+  height: 18px;
+  transition: transform var(--dur) var(--spring);
+}
+
+.card:hover .open svg {
+  transform: translateX(3px);
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .toggle {
+    justify-content: space-between;
+    margin-bottom: var(--s-5);
+  }
+}
+
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

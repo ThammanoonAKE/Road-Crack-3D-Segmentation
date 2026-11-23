@@ -1,0 +1,103 @@
+.wrap {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.box {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  corner-shape: squircle;
+  background: #0b0b0d;
+  cursor: ew-resize;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.img {
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.before {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+}
+
+.box .tag {
+  position: absolute;
+  top: 10px;
+  z-index: 3;
+  padding: 5px 12px;
+  border-radius: var(--r-capsule) !important;
+  font-size: var(--t-caption);
+  font-weight: 600;
+  color: var(--label);
+  pointer-events: none;
+}
+
+.tagBefore {
+  left: 10px;
+}
+
+.tagAfter {
+  right: 10px;
+}
+
+.handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--pos);
+  z-index: 4;
+  width: 44px;
+  margin-left: -22px;
+  display: grid;
+  place-items: center;
+  outline: none;
+}
+
+.handle::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  background: rgb(255 255 255 / 0.85);
+  box-shadow: 0 0 12px rgb(0 0 0 / 0.5);
+}
+
+/* a clear glass lens as the knob */
+.knob {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50% !important;
+  color: #fff;
+  transition: transform var(--dur) var(--spring);
+}
+
+.knob svg {
+  position: relative;
+  z-index: 3;
+  width: 18px;
+  height: 18px;
+}
+
+.box:active .knob {
+  transform: scale(1.12);
+}
+
+.handle:focus-visible .knob {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.hint {
+  font-size: var(--t-caption);
+  color: var(--label-2);
+}

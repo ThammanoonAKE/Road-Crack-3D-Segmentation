@@ -1,0 +1,149 @@
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--s-4);
+  align-items: start;
+}
+
+.player {
+  display: grid;
+  gap: var(--s-3);
+  margin: 0;
+  padding: 8px 8px var(--s-4);
+  border-radius: var(--r-xl) !important;
+}
+
+.screen {
+  position: relative;
+  overflow: hidden;
+  border-radius: calc(var(--r-xl) - 8px);
+  corner-shape: squircle;
+  background: #0b0b0d;
+}
+
+.video {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 960 / 544;
+  object-fit: cover;
+}
+
+.screen .play {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50% !important;
+  color: #fff;
+  transition: transform var(--dur) var(--spring);
+}
+
+.play:active {
+  transform: scale(0.92);
+}
+
+.play svg {
+  position: relative;
+  z-index: 3;
+  width: 18px;
+  height: 18px;
+}
+
+.caption {
+  padding: 0 var(--s-3);
+  font-size: var(--t-footnote);
+  color: var(--label-2);
+}
+
+.stats {
+  display: grid;
+  gap: var(--s-4);
+  padding: var(--s-5);
+  border-radius: var(--r-xl) !important;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-footnote);
+}
+
+.tableCaption {
+  caption-side: bottom;
+  padding-top: var(--s-3);
+  text-align: left;
+  font-size: var(--t-caption);
+  color: var(--label-2);
+}
+
+.table th,
+.table td {
+  padding: var(--s-3) var(--s-3) var(--s-3) 0;
+  border-bottom: 0.5px solid var(--separator);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table thead th {
+  font-weight: 500;
+  font-size: var(--t-caption);
+  color: var(--label-2);
+}
+
+.table tbody th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.table tr[data-accent="true"] th,
+.table tr[data-accent="true"] .ms {
+  color: var(--red);
+}
+
+.ms {
+  display: block;
+  font-size: var(--t-body);
+}
+
+.bar {
+  position: relative;
+  display: block;
+  height: 6px;
+  margin: 6px 0;
+  border-radius: var(--r-capsule);
+  background: var(--fill-2);
+  overflow: hidden;
+}
+
+.bar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: var(--r-capsule);
+  background: rgb(235 235 245 / 0.5);
+}
+
+.table tr[data-accent="true"] .bar > span {
+  background: var(--red);
+}
+
+.sub {
+  font-size: var(--t-caption);
+  color: var(--label-2);
+}
+
+.notes {
+  display: grid;
+  gap: var(--s-2);
+  font-size: var(--t-footnote);
+  color: var(--label-2);
+}
+
+@media (max-width: 1080px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
