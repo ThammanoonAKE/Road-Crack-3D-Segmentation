@@ -27,7 +27,8 @@ uses it and it is expensive to compile.
 param(
     [string]$VenvDir = "",
     [string]$GsplatDir = "",
-    [string]$CudaHome = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8",
+    # The CUDA toolkit folder: CUDA_HOME or, when that is not set, the installer's CUDA_PATH (developed with 12.8)
+    [string]$CudaHome = $(if ($env:CUDA_HOME) { $env:CUDA_HOME } else { $env:CUDA_PATH }),
     [string]$VsDevCmd = "",
     [ValidateRange(1, 64)][int]$MaxJobs = 6,
     [switch]$With3DGUT,
@@ -84,16 +85,18 @@ if ($Verify) {
     exit 0
 }
 
+if (-not $CudaHome) { throw "No CUDA toolkit found. Install CUDA Toolkit 12.8+, or pass -CudaHome." }
 Require-Path "CUDA toolkit" $CudaHome
 Require-Path "nvcc" (Join-Path $CudaHome "bin\nvcc.exe")
 
 if (-not $VsDevCmd) {
+    $pf86 = ${env:ProgramFiles(x86)}; $pf = $env:ProgramFiles
     $candidates = @(
-        "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat",
-        "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat",
-        "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat",
-        "C:\Program Files\Microsoft Visual Studio\2022\Professional\Common7\Tools\VsDevCmd.bat",
-        "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\Tools\VsDevCmd.bat"
+        "$pf86\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat",
+        "$pf\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat",
+        "$pf\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat",
+        "$pf\Microsoft Visual Studio\2022\Professional\Common7\Tools\VsDevCmd.bat",
+        "$pf\Microsoft Visual Studio\18\Community\Common7\Tools\VsDevCmd.bat"
     )
     $VsDevCmd = $candidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
     if (-not $VsDevCmd) {

@@ -7,9 +7,10 @@ param([Parameter(Mandatory = $true)][string]$Clip, [Parameter(Mandatory = $true)
 $ErrorActionPreference = "Continue"
 $root = Split-Path -Parent $PSScriptRoot; Set-Location $root  # the repository
 $gs = "$root\.venv-gsplat311\Scripts\python.exe"; $dx = "$root\.venv-difix\Scripts\python.exe"
-$tests = $PSScriptRoot; $scratch = Split-Path $PSScriptRoot -Parent
-$w = "C:\3D-segmentation-data\difix\road_$Clip"; $scene4k = "$w\scene_4k"
-$src = "C:\3D-segmentation-data\difix\Difix3D\src"; $scene = "C:\3D-segmentation-data\road_crack\$Clip\scene"
+$data = if ($env:ROAD_CRACK_DATA) { $env:ROAD_CRACK_DATA } else { "$root\data" }  # the work folders; clips_to_splats.ps1 -Work is $data\road_crack
+$tests = $PSScriptRoot
+$w = "$data\difix\road_$Clip"; $scene4k = "$w\scene_4k"
+$src = "$data\difix\Difix3D\src"; $scene = "$data\road_crack\$Clip\scene"
 $env:PYTHONUNBUFFERED = "1"; $env:PYTORCH_CUDA_ALLOC_CONF = "expandable_segments:True"
 function Stamp([string]$s) { Write-Output "== hole $Hole 4K $s $(Get-Date -Format HH:mm)" }
 function Quiet { process { $l = "$_"; if ($l -notmatch "it/s\]|s/it\]|Warning|warn\(|^\s*$|RemoteException|^\[|Scene scale|Model initialized") { $l } } }
@@ -20,8 +21,8 @@ if ($WaitFor) {
 }
 if (-not (Test-Path "$scene4k\sparse\cameras.bin")) {
     Stamp "4K scene"
-    & "$root\export\colmap_pipeline\colmap_bin\bin\colmap.exe" image_undistorter --image_path "C:\3D-segmentation-data\road_crack\$Clip\frames" `
-        --input_path "C:\3D-segmentation-data\road_crack\$Clip\colmap\sparse\0" --output_path $scene4k --output_type COLMAP 2>&1 | Select-Object -Last 1
+    & "$root\export\colmap_pipeline\colmap_bin\bin\colmap.exe" image_undistorter --image_path "$data\road_crack\$Clip\frames" `
+        --input_path "$data\road_crack\$Clip\colmap\sparse\0" --output_path $scene4k --output_type COLMAP 2>&1 | Select-Object -Last 1
 }
 $base = "$w\top_r3.pt"
 $old = @("$w\round1", "$w\round2", "$w\round3", "$w\top1", "$w\top2", "$w\top3")
@@ -60,7 +61,6 @@ Stamp "score at 4K (before = top_r3, the web's version)"
 $env:DIFIX_ROAD_SCENE = $scene4k
 & $gs -I "$tests\difix_road.py" eval $Clip $base "$w\k4_r2.pt" "$w\eval4k" 2>&1 | Quiet
 & $gs -I "$tests\difix_road_top.py" $Clip $base "$w\k4_r2.pt" "$w\top4k.jpg" 2>&1 | Quiet | Select-String "->|Error"
-& $gs -I "$scratch\crop_4k.py" "$w\top4k.jpg" "$w\top4k_1to1.jpg" "now on web" "4K tiles + Difix tiles" | Out-Null
 Remove-Item Env:\DIFIX_ROAD_SCENE
 
 Stamp "web build"

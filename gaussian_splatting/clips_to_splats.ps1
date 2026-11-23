@@ -21,7 +21,10 @@
   the lists bind as arrays:
 
     .\gaussian_splatting\clips_to_splats.ps1 `
-        -Clips C:\3D-segmentation-data\road_crack\raw -Work C:\3D-segmentation-data\road_crack
+        -Clips data\road_crack\raw -Work data\road_crack
+
+  The later scripts (web\tools\build_all.ps1, difix\, edge_ai\) look for the clips' folders in
+  <data>\road_crack, where <data> is $env:ROAD_CRACK_DATA or, when that is not set, <repository>\data.
 #>
 [CmdletBinding()]
 param(

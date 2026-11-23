@@ -61,7 +61,7 @@ the same pose, with Gaussians labelled as crack drawn in red.
 **Orbit around a reconstruction** (section 2; full video:
 [`samples/videos/orbit/hole_2_151720_orbit.mp4`](samples/videos/orbit/hole_2_151720_orbit.mp4)).
 
-<p align="center"><img src="docs/media/orbit_hole2.gif" width="60%" alt="Orbit around the reconstructed road section"></p>
+<p align="center"><img src="docs/media/orbit_hole2.webp" width="60%" alt="Orbit around the reconstructed road section"></p>
 
 **Difix3D+ refinement**, before (left) and after (right), seen from novel viewpoints.
 
@@ -71,12 +71,12 @@ the same pose, with Gaussians labelled as crack drawn in red.
 (full video:
 [`samples/videos/edge_ai/hole_2_151720_edge_compare.mp4`](samples/videos/edge_ai/hole_2_151720_edge_compare.mp4)).
 
-<p align="center"><img src="docs/media/edge_steadying_hole2.gif" width="60%" alt="Frame-by-frame versus stabilised crack detection"></p>
+<p align="center"><img src="docs/media/edge_steadying_hole2.webp" width="60%" alt="Frame-by-frame versus stabilised crack detection"></p>
 
 **Real-time streaming simulation** with the TensorRT engine, on a road walk (full video:
 [`samples/videos/stream_sim/walk_153250_stream_trt_30s.mp4`](samples/videos/stream_sim/walk_153250_stream_trt_30s.mp4)).
 
-<p align="center"><img src="docs/media/stream_sim_walk.gif" width="80%" alt="Real-time crack detection on a road walk"></p>
+<p align="center"><img src="docs/media/stream_sim_walk.webp" width="80%" alt="Real-time crack detection on a road walk"></p>
 
 More material is in [`samples/`](samples):
 - preview sheets for all eight sections (`previews/cracks`, `previews/difix_before_after`);
@@ -101,6 +101,9 @@ More material is in [`samples/`](samples):
 | `docs/media/` | Images and animations used in this document |
 
 Large binary files (`*.ksplat`, `*.pt`, `*.mp4`) are stored with Git LFS. Run `git lfs install` before cloning.
+
+File names and script parameters call the road sections `hole_1` to `hole_8` (`-Hole <n>`): `hole_<n>` is
+section *n* of this document and of the viewer.
 
 ## Method
 
@@ -341,6 +344,13 @@ CUDA 12.8 and NVIDIA driver 582.16.
 | `.venv-difix` | Difix3D+ (`nvidia/difix_ref`); the Difix3D source code is obtained separately |
 | `.venv-trt` | TensorRT 11.5, NVIDIA Model Optimizer 0.48, PyTorch 2.9.1 (CUDA 12.8), ONNX |
 
+**Data folder.** The work folders live under one data folder, `<data>`: the environment variable
+`ROAD_CRACK_DATA` or, when that is not set, `data\` in the repository (ignored by git).
+- `<data>\road_crack\<clip>\`: frames, COLMAP model, undistorted scene and depth maps of each clip
+  (`clips_to_splats.ps1 -Work <data>\road_crack`).
+- `<data>\difix\road_<clip>\`: the Difix3D+ rounds; the Difix3D source code goes in
+  `<data>\difix\Difix3D`.
+
 **COLMAP.** COLMAP 4.x is not included.
 - Install the Windows CUDA build from the COLMAP releases into `export/colmap_pipeline/colmap_bin/`.
 - Place the FAISS vocabulary tree `vocab_tree_faiss_flickr100K_words32K.bin` in
@@ -350,7 +360,7 @@ CUDA 12.8 and NVIDIA driver 582.16.
 
 1. **Reconstruction.**
    ```powershell
-   .\gaussian_splatting\clips_to_splats.ps1 -Clips <clip folder> -Work <work folder> -DepthPrior
+   .\gaussian_splatting\clips_to_splats.ps1 -Clips <clip folder> -Work <data>\road_crack -DepthPrior
    ```
 2. **Export without refinement.** `web\tools\build_all.ps1` runs floater removal, cropping and `.ksplat`
    conversion for every section.
@@ -361,7 +371,7 @@ CUDA 12.8 and NVIDIA driver 582.16.
    - `difix_road_queue.ps1` and `difix_top_queue.ps1`: all sections.
 4. **Crack labels.**
    ```powershell
-   .\.venv-gsplat311\Scripts\python.exe -I web\tools\crack_labels.py --scene <work>\<clip>\scene `
+   .\.venv-gsplat311\Scripts\python.exe -I web\tools\crack_labels.py --scene <data>\road_crack\<clip>\scene `
        --ply <PLY the .ksplat was built from> --ksplat web\public\splats\hole_<n>.ksplat
    ```
    Rebuilding a `.ksplat` invalidates its `.cracks.bin`.
@@ -394,16 +404,8 @@ four adaptations for Model Optimizer 0.48 and TensorRT 11.5 on Windows, all impl
   The label transfer uses the earlier detector (`crack_detector`).
 - **Distance.** In walking footage, fine cracks far from the camera are sometimes missed. The detectors were
   trained mainly on close-range and line-scan imagery.
-- **Machine-specific paths.** Several scripts refer to the original data folders (`C:\3D-segmentation-data\...`)
-  and tool installation paths:
-  - `clips_to_splats.ps1` (as parameters);
-  - `web/tools/build_all.ps1`;
-  - the `difix/` scripts;
-  - `edge_ai/trt_crack.py check` and `edge_ai/trt_nvfp4.py`;
-  - `edge_ai/with_msvc.cmd`.
-
-  Adjust them before running elsewhere. Model paths are relative to the repository.
-- **Platform.** The pipeline scripts are written for Windows PowerShell.
+- **Platform.** The pipeline scripts are written for Windows PowerShell. They find Visual Studio 2022, the
+  CUDA toolkit (`CUDA_HOME` or `CUDA_PATH`) and Microsoft Edge (`EDGE_PATH`) in their usual locations.
 
 ## Privacy
 
@@ -416,7 +418,11 @@ Vehicles in the sample videos are blurred with `tools/blur_vehicles.py`, so that
 
 ## Licence and third-party components
 
-No licence has yet been specified for the original content of this repository.
+The original content of this repository is released under the [MIT License](LICENSE).
+
+The third-party components below keep their own terms. They also bear on two kinds of files in this
+repository: the reconstructions in `web/public/splats/` were refined with Difix3D+, and the model weights
+were trained on public crack datasets. Check those terms before any commercial use of these files.
 
 | Component | Licence | Notes |
 |---|---|---|

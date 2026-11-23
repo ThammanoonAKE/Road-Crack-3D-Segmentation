@@ -6,8 +6,9 @@ param([Parameter(Mandatory = $true)][string]$Clip, [Parameter(Mandatory = $true)
 $ErrorActionPreference = "Continue"
 $root = Split-Path -Parent $PSScriptRoot; Set-Location $root  # the repository
 $gs = "$root\.venv-gsplat311\Scripts\python.exe"; $dx = "$root\.venv-difix\Scripts\python.exe"
-$tests = $PSScriptRoot; $w = "C:\3D-segmentation-data\difix\road_$Clip"
-$src = "C:\3D-segmentation-data\difix\Difix3D\src"; $scene = "C:\3D-segmentation-data\road_crack\$Clip\scene"
+$data = if ($env:ROAD_CRACK_DATA) { $env:ROAD_CRACK_DATA } else { "$root\data" }  # the work folders; clips_to_splats.ps1 -Work is $data\road_crack
+$tests = $PSScriptRoot; $w = "$data\difix\road_$Clip"
+$src = "$data\difix\Difix3D\src"; $scene = "$data\road_crack\$Clip\scene"
 $env:PYTHONUNBUFFERED = "1"
 function Stamp([string]$s) { Write-Output "== hole $Hole $s $(Get-Date -Format HH:mm)" }
 function Quiet { process { $l = "$_"; if ($l -notmatch "it/s\]|s/it\]|Warning|warn\(|^\s*$|RemoteException|^\[|Scene scale|Model initialized") { $l } } }

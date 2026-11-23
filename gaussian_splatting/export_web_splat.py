@@ -8,7 +8,7 @@ degree 3 and degree 0 matched, and it is 45 of the 59 values per Gaussian. Every
 written at full precision, so a later .ksplat conversion decides the only loss. A JSON beside the
 PLY holds the opening camera.
 
-    python -I gaussian_splatting/export_web_splat.py --scene C:/3D-segmentation-data/road_crack/151605/scene \
+    python -I gaussian_splatting/export_web_splat.py --scene <data>/road_crack/151605/scene \
         --ply runs/road_crack_151605_v2/sharp.ply --output web/public/splats/hole_1.ply
 """
 

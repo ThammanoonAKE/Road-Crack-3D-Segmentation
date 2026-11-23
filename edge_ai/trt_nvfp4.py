@@ -12,7 +12,6 @@ Calibration: --calib road photos (other ones than trt_crack.py check uses), each
 that many other photos (mean |prob diff|, mask IoU), to tell the quantization's own error from the engine's.
 """
 import argparse
-import glob
 import os
 import sys
 import time
@@ -24,7 +23,7 @@ import torch
 
 warnings.filterwarnings("ignore", category=UserWarning)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from trt_crack import package  # noqa: E402
+from trt_crack import package, road_photos  # noqa: E402
 
 import modelopt.torch.quantization as mtq  # noqa: E402
 from modelopt.torch._deploy.utils.torch_onnx import OnnxBytes, get_onnx_bytes_and_metadata  # noqa: E402
@@ -55,7 +54,7 @@ for block in [m.block for m in model.modules() if type(m).__name__ == "CNBlock"]
     assert isinstance(block[3], torch.nn.Linear) and isinstance(block[5], torch.nn.Linear), block
     block[3] = FlatMLP(block[3], block[4], block[5])
     block[4], block[5] = torch.nn.Identity(), torch.nn.Identity()
-files = sorted(glob.glob(r"C:\3D-segmentation-data\road_crack\*\scene\images\*.png"))
+files = road_photos()
 
 
 def tensors(paths):

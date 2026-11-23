@@ -10,6 +10,7 @@ import argparse
 import asyncio
 import base64
 import json
+import os
 import subprocess
 import tempfile
 import time
@@ -17,7 +18,10 @@ import urllib.request
 
 import websockets
 
-EDGE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+# Microsoft Edge: EDGE_PATH, else its usual install folders, else msedge on PATH
+EDGE = os.environ.get("EDGE_PATH") or next(
+    (p for p in (os.path.join(os.environ.get(v, ""), "Microsoft", "Edge", "Application", "msedge.exe")
+                 for v in ("ProgramFiles(x86)", "ProgramFiles")) if os.path.isfile(p)), "msedge")
 ap = argparse.ArgumentParser()
 ap.add_argument("url")
 ap.add_argument("out")

@@ -5,8 +5,10 @@
 # within 1.5x the usual distance, resolved within 2x the median footprint once slant is counted),
 # then export_web_splat.py, cropped to 0.6 phone heights round where the photos aimed and 0.2 above
 # or below the road, then make_ksplat.mjs. Skips holes whose .ksplat is newer than their source.
-$root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent  # the repository (this file is web	ools\)
+$root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent  # the repository (this file is web\tools\)
 Set-Location $root
+# The clips' work folders (clips_to_splats.ps1 -Work is <data>\road_crack): ROAD_CRACK_DATA, else <repository>\data
+$data = if ($env:ROAD_CRACK_DATA) { $env:ROAD_CRACK_DATA } else { "$root\data" }
 $ErrorActionPreference = "Continue"
 $holes = @(@(1, '151605', 19999), @(2, '151720', 19999), @(3, '151928', 19999), @(4, '152216', 19999),
            @(5, '152251', 19999), @(6, '152326', 19999), @(7, '152410', 39999), @(8, '152618', 19999))
@@ -17,7 +19,7 @@ foreach ($h in $holes) {
         Where-Object { Test-Path $_ } | Select-Object -First 1
     $ksplat = "web\public\splats\$name.ksplat"
     if ((Test-Path $ksplat) -and (Get-Item $ksplat).LastWriteTime -gt (Get-Item $src).LastWriteTime) { Write-Output "hole ${n}: up to date"; continue }
-    $scene = "C:\3D-segmentation-data\road_crack\$c\scene"
+    $scene = "$data\road_crack\$c\scene"
     $clean = "web\public\splats\${name}_clean.ply"; $ply = "web\public\splats\$name.ply"
     Remove-Item $clean, $ply -ErrorAction SilentlyContinue
     & .\.venv-gsplat311\Scripts\python.exe -I gaussian_splatting\clean_floaters.py --scene $scene --ply $src --output $clean `

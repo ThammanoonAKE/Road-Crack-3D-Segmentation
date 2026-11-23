@@ -13,7 +13,7 @@
 | `requirements.txt` | library ที่ต้องใช้ ได้แก่ torch, torchvision, opencv-python และ numpy |
 | `plots/` | กราฟการเทรนและผลทดสอบ (ภาษาอังกฤษ) และภาพตัวอย่างผลบนภาพสแกนทดสอบของเรา |
 
-คัดลอกทั้งโฟลเดอร์ไปไว้ในโปรเจ็คอื่นได้เลย ไม่ต้องใช้โค้ดใน D:\DeepCrack
+คัดลอกทั้งโฟลเดอร์ไปไว้ในโปรเจ็คอื่นได้เลย ไม่ต้องใช้โค้ดเทรน (ซึ่งไม่ได้รวมอยู่ใน repository นี้)
 
 ใช้แทนแพ็กเกจรุ่นก่อน (weight `deepcrack_convnext_small_aug_v3.pt`) ได้ทันที เพราะคำสั่งใช้งานเหมือนเดิม
 มีสิ่งที่เปลี่ยน 3 อย่าง:
@@ -140,5 +140,5 @@ python crack_detector.py scans/ --out results/ --thr 0.3 --min-area 0 --tile 102
 - **แถบตรงแนวนอนในภาพสแกนใหม่:** ภาพสแกนเดือน ต.ค. 2026 บางภาพมีเส้นตรงยาวที่ลายผิวถนนเหลื่อมกัน (น่าจะเป็นรอยต่อของตัวภาพสแกน) โมเดลอาจทายเส้นนี้เป็นรอยแตก
 - **ความกว้างของรอยแตกที่ทำนาย:** แต่ละแหล่งข้อมูลวาด label ไม่เหมือนกัน บางแหล่งวาดแค่เส้นกลางกว้าง 1 pixel บางแหล่งวาดเต็มความกว้างของรอยแตก ถ้าต้องวัดความกว้างให้แม่นยำ ควรปรับ `threshold` โดยเทียบกับภาพที่รู้ความกว้างจริง
 - **รูปแบบไฟล์ weight:** `torch.load(..., weights_only=True)` ให้ dict ที่มี `state_dict`, `threshold`, `min_area`, `test_metrics` และข้อมูลการเทรน ดูได้จาก `det.info`
-- **ที่มา:** weight มาจาก `D:\DeepCrack\runs\deepcrack_convnext_small_final_aug_1class_own\last.pt` (EMA weights) วิธีเทรนดู preset `convnext_small_final_aug_1class_own` ใน `D:\DeepCrack\config.py`
-- **รุ่นก่อน:** เก็บไว้ที่ `D:\DeepCrack\export\crack_detector_1class_2026-11-17` (และ `.zip`)
+- **ที่มา:** weight มาจาก checkpoint สุดท้าย (`last.pt`) ของ run `deepcrack_convnext_small_final_aug_1class_own` (EMA weights) เทรนด้วย preset `convnext_small_final_aug_1class_own` ของโค้ดเทรน ซึ่งไม่ได้รวมอยู่ใน repository นี้
+- **รุ่นก่อน:** แพ็กเกจ `crack_detector_1class_2026-11-17` ไม่ได้รวมอยู่ใน repository นี้

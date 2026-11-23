@@ -51,7 +51,7 @@ ERODE = 33  # px of a 4K tile (about 16 at 1080p): wider than an edge Gaussian's
 
 
 def use_4k(clip):
-    os.environ["DIFIX_ROAD_SCENE"] = rf"C:\3D-segmentation-data\difix\road_{clip}\scene_4k"
+    os.environ["DIFIX_ROAD_SCENE"] = rf"{dr.DATA}\difix\road_{clip}\scene_4k"
 
 
 def load_views(d):

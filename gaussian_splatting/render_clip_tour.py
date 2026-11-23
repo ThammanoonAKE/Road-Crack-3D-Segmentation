@@ -12,7 +12,7 @@ down one side of the filmed strip, round its end and back up the other, always l
 stretch from the phone's viewing distance. Framing the whole strip at once would mean looking from
 ten times the phone's height, where cracks vanish and the roadside floaters dominate.
 
-    python -I gaussian_splatting/render_clip_tour.py --scene C:/3D-segmentation-data/road_crack/151605/scene \
+    python -I gaussian_splatting/render_clip_tour.py --scene <data>/road_crack/151605/scene \
         --ply runs/road_crack_151605/ply/point_cloud_19999.ply --output hole_1.mp4 --label "Hole 1"
 """
 
@@ -166,7 +166,7 @@ def main() -> None:
     del data
     Kt = torch.tensor([[focal, 0, W / 2], [0, focal, H / 2], [0, 0, 1]], device=dev, dtype=torch.float32)[None]
     background = torch.tensor([[0.55, 0.56, 0.58]], device=dev)
-    font = ImageFont.truetype(r"C:\Windows\Fonts\tahoma.ttf", 48)
+    font = ImageFont.truetype("tahoma.ttf", 48)  # Pillow looks a bare file name up in the Windows fonts folder
 
     def render(eye: np.ndarray, target: np.ndarray) -> np.ndarray:
         c2w = np.eye(4)

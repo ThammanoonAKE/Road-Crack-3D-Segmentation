@@ -14,8 +14,8 @@ make_ksplat.mjs regroups the splats, so the labels are carried over by position:
 .ksplat's centres in the order the viewer indexes them. The output holds the crack splats' indices in that order,
 uint32 little-endian. A sheet compares the detector on photos with the marked splat seen from the same poses.
 
-    python -I web/tools/crack_labels.py --scene C:/3D-segmentation-data/road_crack/151720/scene \
-        --ply C:/3D-segmentation-data/difix/road_151720/hole_2_4k_cut.ply --ksplat web/public/splats/hole_2.ksplat
+    python -I web/tools/crack_labels.py --scene <data>/road_crack/151720/scene \
+        --ply <data>/difix/road_151720/hole_2_4k_cut.ply --ksplat web/public/splats/hole_2.ksplat
 """
 
 from __future__ import annotations

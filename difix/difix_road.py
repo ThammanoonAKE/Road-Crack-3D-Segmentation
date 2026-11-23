@@ -25,6 +25,8 @@ from scipy.ndimage import gaussian_filter1d
 from scipy.spatial import cKDTree
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # the repository
+# The work folders (road_crack\<clip> from clips_to_splats.ps1, difix\road_<clip> from these scripts)
+DATA = os.environ.get("ROAD_CRACK_DATA") or rf"{ROOT}\data"
 GSPLAT = rf"{ROOT}\third_party\gsplat\examples"
 sys.path.insert(0, GSPLAT)
 sys.path.insert(0, rf"{ROOT}\gaussian_splatting")
@@ -38,7 +40,7 @@ dev = "cuda"
 
 
 def make_runner(clip, max_steps):
-    os.environ["GSPLAT_DEPTH_PRIOR_DIR"] = rf"C:\3D-segmentation-data\road_crack\{clip}\depth_prior"
+    os.environ["GSPLAT_DEPTH_PRIOR_DIR"] = rf"{DATA}\road_crack\{clip}\depth_prior"
     os.environ["GSPLAT_DEPTH_PRIOR_SAMPLES"] = "40000"  # clips_to_splats.ps1 -DepthPrior
     import simple_trainer
     from lib_bilagrid import BilateralGrid, slice
@@ -46,7 +48,7 @@ def make_runner(clip, max_steps):
 
     with open(rf"{ROOT}\runs\road_crack_{clip}_v2\cfg.yml") as f:
         saved = yaml.unsafe_load(f)
-    saved.update(result_dir=rf"C:\3D-segmentation-data\difix\road_{clip}\runner", max_steps=max_steps,
+    saved.update(result_dir=rf"{DATA}\difix\road_{clip}\runner", max_steps=max_steps,
                  disable_viewer=True, ckpt=None, resume=None)
     if os.environ.get("DIFIX_ROAD_SCENE"):  # e.g. difix_road_4k.py's 4K scene: same poses, other images
         saved["data_dir"] = os.environ["DIFIX_ROAD_SCENE"]

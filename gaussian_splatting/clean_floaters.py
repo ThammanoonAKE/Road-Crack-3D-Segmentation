@@ -19,7 +19,7 @@ splat smeared it.
 
 The PLY stays in the trainer's frame, so render_clip_tour.py and gsplat tools read it unchanged.
 
-    python -I gaussian_splatting/clean_floaters.py --scene C:/3D-segmentation-data/road_crack/152410/scene \
+    python -I gaussian_splatting/clean_floaters.py --scene <data>/road_crack/152410/scene \
         --ply runs/road_crack_152410_v2/ply/point_cloud_39999.ply --output runs/road_crack_152410_v2/clean.ply
 """
 

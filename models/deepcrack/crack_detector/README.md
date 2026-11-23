@@ -11,7 +11,7 @@
 | `deepcrack_convnext_small_aug.pt` | weight ของโมเดล (208 MB) ต้องอยู่โฟลเดอร์เดียวกับ `crack_detector.py` หรือระบุ path เอง |
 | `requirements.txt` | library ที่ต้องใช้ ได้แก่ torch, torchvision, opencv-python และ numpy |
 
-คัดลอกทั้งโฟลเดอร์ไปไว้ในโปรเจ็คอื่นได้เลย ไม่ต้องใช้โค้ดใน D:\DeepCrack
+คัดลอกทั้งโฟลเดอร์ไปไว้ในโปรเจ็คอื่นได้เลย ไม่ต้องใช้โค้ดเทรน (ซึ่งไม่ได้รวมอยู่ใน repository นี้)
 
 ## ใช้ใน Python
 
@@ -105,4 +105,4 @@ python crack_detector.py photos/ --out results/ --scale 0.5 --thr 0.3 --cpu
 - **ข้อมูลที่ใช้เทรน:** crack_merged (CRACK500, Rissbilder, Volker, DeepCrack, GAPS384, CFD และอื่นๆ) ชุด train+val รวม 11,503 ภาพ ภาพที่ต่างจากชุดนี้มาก เช่นพื้นผิวที่ไม่เคยเห็น ควรทดสอบก่อนใช้งานจริง
 - **ความกว้างของรอยร้าวที่ทำนาย:** แต่ละแหล่งข้อมูลวาด label ไม่เหมือนกัน บางแหล่งวาดแค่เส้นกลางกว้าง 1 pixel บางแหล่งวาดเต็มความกว้างของรอยร้าว โมเดลเรียนรู้ค่ากลางๆ ถ้าต้องวัดความกว้างรอยร้าวให้แม่นยำ ควรปรับ `threshold` โดยเทียบกับภาพของคุณเอง
 - **รูปแบบไฟล์ weight:** `torch.load(..., weights_only=True)` ให้ dict ที่มี `state_dict`, `threshold`, `test_metrics` และข้อมูลการเทรน ดูได้จาก `det.info`
-- **ที่มา:** weight มาจาก `D:\DeepCrack\runs\deepcrack_convnext_small_final_aug\last.pt` ใช้ EMA weights ส่วนวิธีเทรนดู preset `convnext_small_final_aug` ใน `D:\DeepCrack\config.py`
+- **ที่มา:** weight มาจาก checkpoint สุดท้าย (`last.pt`) ของ run `deepcrack_convnext_small_final_aug` ใช้ EMA weights เทรนด้วย preset `convnext_small_final_aug` ของโค้ดเทรน ซึ่งไม่ได้รวมอยู่ใน repository นี้

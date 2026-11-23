@@ -9,6 +9,7 @@
 import asyncio
 import base64
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -17,7 +18,10 @@ import urllib.request
 
 import websockets
 
-EDGE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+# Microsoft Edge: EDGE_PATH, else its usual install folders, else msedge on PATH
+EDGE = os.environ.get("EDGE_PATH") or next(
+    (p for p in (os.path.join(os.environ.get(v, ""), "Microsoft", "Edge", "Application", "msedge.exe")
+                 for v in ("ProgramFiles(x86)", "ProgramFiles")) if os.path.isfile(p)), "msedge")
 url, out = sys.argv[1], sys.argv[2]
 orbit = float(sys.argv[sys.argv.index("--orbit") + 1]) if "--orbit" in sys.argv else 0.0
 zoom_out = int(sys.argv[sys.argv.index("--zoom-out") + 1]) if "--zoom-out" in sys.argv else 0

@@ -29,7 +29,19 @@ import cv2
 import numpy as np
 import torch
 
-PACKAGE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "models", "deepcrack", "crack_detector_1class_best")
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # the repository
+PACKAGE = os.path.join(ROOT, "models", "deepcrack", "crack_detector_1class_best")
+
+
+def road_photos():
+    """Every clip's undistorted photos, <data>\\road_crack\\<clip>\\scene\\images (clips_to_splats.ps1 writes them);
+    <data> is ROAD_CRACK_DATA or, when that is not set, the repository's data folder."""
+    data = os.environ.get("ROAD_CRACK_DATA") or os.path.join(ROOT, "data")
+    pattern = os.path.join(data, "road_crack", "*", "scene", "images", "*.png")
+    files = sorted(glob.glob(pattern))
+    if not files:
+        raise SystemExit(f"no road photos at {pattern}; set ROAD_CRACK_DATA to the folder holding road_crack")
+    return files
 
 
 def package():
@@ -132,7 +144,7 @@ def build(args):
 def check(args):
     det = package().CrackDetector()
     eng = Engine(args.engine)
-    files = sorted(glob.glob(r"C:\3D-segmentation-data\road_crack\*\scene\images\*.png"))
+    files = road_photos()
     files = files[:: max(1, len(files) // args.frames)][: args.frames]
     rows = {"upright 540x960": [], "as filmed 960x540": []}
     for f in files:
