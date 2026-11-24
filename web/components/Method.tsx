@@ -18,14 +18,21 @@ export function Method() {
     <section id="method" className={ui.section} aria-labelledby="method-title">
       <div className={`${ui.wrap} ${styles.layout}`}>
         <div className={styles.aside}>
-          <div className={`${ui.head} rise`}>
-            <p className={ui.kicker}>{m.kicker}</p>
-            <h2 id="method-title" className={ui.title}>
+          <div className={ui.head}>
+            <p className={ui.kicker} data-reveal="left">{m.kicker}</p>
+            <h2 id="method-title" className={ui.title} data-reveal="blur" style={{ "--i": 1 } as React.CSSProperties}>
               {m.title}
             </h2>
-            <p className={ui.lead}>{m.lead}</p>
+            <p className={ui.lead} data-reveal="up" style={{ "--i": 2 } as React.CSSProperties}>{m.lead}</p>
             {REPO && (
-              <a href={REPO} className={`${ui.secondary} lg-clear ${styles.repo}`} target="_blank" rel="noreferrer">
+              <a
+                href={REPO}
+                className={`${ui.secondary} lg-clear ${styles.repo}`}
+                target="_blank"
+                rel="noreferrer"
+                data-reveal="up"
+                style={{ "--i": 3 } as React.CSSProperties}
+              >
                 {m.repo}
                 <External />
               </a>
@@ -33,10 +40,10 @@ export function Method() {
           </div>
         </div>
 
-        <ol className={`${styles.list} lg-thick rise`}>
+        <ol className={`${styles.list} lg-thick`} data-reveal="up">
           {m.steps.map((step, i) => (
-            <li key={step.code} className={styles.row}>
-              <span className={`${styles.icon} mono`} aria-hidden>
+            <li key={step.code} className={styles.row} data-reveal="right">
+              <span className={`${styles.icon} mono`} data-pop aria-hidden>
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div className={styles.text}>

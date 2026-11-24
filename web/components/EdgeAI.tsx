@@ -47,16 +47,16 @@ export function EdgeAI() {
   return (
     <section id="edge" className={ui.section} aria-labelledby="edge-title">
       <div className={ui.wrap}>
-        <div className={`${ui.head} rise`}>
-          <p className={ui.kicker}>{e.kicker}</p>
-          <h2 id="edge-title" className={ui.title}>
+        <div className={ui.head}>
+          <p className={ui.kicker} data-reveal="left">{e.kicker}</p>
+          <h2 id="edge-title" className={ui.title} data-reveal="blur" style={{ "--i": 1 } as React.CSSProperties}>
             {e.title}
           </h2>
-          <p className={ui.lead}>{e.lead}</p>
+          <p className={ui.lead} data-reveal="up" style={{ "--i": 2 } as React.CSSProperties}>{e.lead}</p>
         </div>
 
         <div className={styles.grid}>
-          <figure className={`${styles.player} lg rise`}>
+          <figure className={`${styles.player} lg`} data-reveal="left">
             <div className={styles.screen}>
               <video
                 ref={video}
@@ -85,7 +85,7 @@ export function EdgeAI() {
             <figcaption className={styles.caption}>{e.videoCaption}</figcaption>
           </figure>
 
-          <div className={`${styles.stats} lg-thick rise`}>
+          <div className={`${styles.stats} lg-thick`} data-reveal="right" style={{ "--i": 1 } as React.CSSProperties}>
             <table className={styles.table}>
               <caption className={styles.tableCaption}>{e.tableCaption}</caption>
               <thead>
@@ -96,13 +96,13 @@ export function EdgeAI() {
                 </tr>
               </thead>
               <tbody>
-                {ROWS.map((r) => (
-                  <tr key={r.name} data-accent={r.accent}>
+                {ROWS.map((r, i) => (
+                  <tr key={r.name} data-accent={r.accent} data-row style={{ "--i": i * 2 } as React.CSSProperties}>
                     <th scope="row">{r.name}</th>
                     <td>
                       <span className={`${styles.ms} mono`}>{r.landscape.toFixed(2)} ms</span>
                       <span className={styles.bar} aria-hidden>
-                        <span style={{ width: `${(100 * r.landscape) / SCALE}%` }} />
+                        <span data-grow style={{ width: `${(100 * r.landscape) / SCALE}%` }} />
                       </span>
                       <span className={`${styles.sub} mono`}>
                         {e.portrait}: {r.portrait.toFixed(2)} ms

@@ -2,6 +2,7 @@ import { EdgeAI } from "@/components/EdgeAI";
 import { Hero } from "@/components/Hero";
 import { Method } from "@/components/Method";
 import { ModelSection } from "@/components/ModelSection";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { SectionGrid } from "@/components/SectionGrid";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -20,6 +21,7 @@ export default function Home() {
         <ModelSection />
       </main>
       <SiteFooter />
+      <ScrollReveal />
     </>
   );
 }

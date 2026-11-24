@@ -71,15 +71,16 @@ Motion shows the data or answers the pointer. Nothing moves only for decoration.
 | Where | What moves | How |
 |---|---|---|
 | Hero | The road condenses out of dust, a scan line crosses it, the camera drifts and leans towards the mouse; in *Crack trace* the red spreads along the cracks from the middle | `HeroCloud`: one shader on a three.js point cloud, drei `Sparkles` for the dust |
-| Sections of the home page | Headings, cards and panels fade up as they scroll into view; the items of a row travel different distances, so they arrive one after another | `.rise` in `globals.css`: a CSS scroll-driven animation |
+| Sections of the home page | Each part plays an entrance as it scrolls into view. Kickers slide in from the left, titles come out of a blur, cards and panels rise one after another, the method steps arrive from the right with their numbers springing in, the Edge AI clip and its table come from opposite sides, the figure tiles zoom in, table rows follow their panel, and the red bars fill from the left | `data-reveal` rules in `globals.css`, started by `ScrollReveal` (an IntersectionObserver) |
 | Section cards | A card leans towards the mouse and a highlight follows it | `SectionGrid`: CSS variables set on `pointermove` |
 | Viewer | The camera glides down to its opening pose when a section has loaded | `SplatController.flyIn` |
 
 **Fallbacks:**
-- Under `prefers-reduced-motion: reduce` the hero keeps its photograph, `.rise` elements stay in place, cards
+- Under `prefers-reduced-motion: reduce` the hero keeps its photograph, entrances do not play, cards
   do not lean and the viewer opens on its pose.
 - The point cloud is also skipped when the browser asks to save data or has no WebGL.
-- Browsers without scroll-driven animations show `.rise` elements in place.
+- Entrances hide nothing until `ScrollReveal` runs, so without JavaScript every element is in place. Elements
+  already on screen when the page opens are left as they are.
 - The hero stops drawing while it is scrolled out of view, and drops to 1× pixel density if frames slow down.
 
 ## Rules

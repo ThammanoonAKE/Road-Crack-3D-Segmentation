@@ -103,8 +103,8 @@ export function Hero() {
 
       <div className={styles.widgetsWrap}>
         <dl className={styles.widgets}>
-          {t.figures.map((f) => (
-            <div key={f.value} className={`${styles.widget} lg rise`}>
+          {t.figures.map((f, i) => (
+            <div key={f.value} className={`${styles.widget} lg`} data-reveal="zoom" style={{ "--i": i } as React.CSSProperties}>
               <dt className={styles.widgetLabel}>{f.label}</dt>
               <dd className={`${styles.widgetValue} mono`}>{f.value}</dd>
             </div>

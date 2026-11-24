@@ -10,15 +10,15 @@ export function ModelSection() {
   return (
     <section id="model" className={ui.section} aria-labelledby="model-title">
       <div className={ui.wrap}>
-        <div className={`${ui.head} rise`}>
-          <p className={ui.kicker}>{m.kicker}</p>
-          <h2 id="model-title" className={ui.title}>
+        <div className={ui.head}>
+          <p className={ui.kicker} data-reveal="left">{m.kicker}</p>
+          <h2 id="model-title" className={ui.title} data-reveal="blur" style={{ "--i": 1 } as React.CSSProperties}>
             {m.title}
           </h2>
-          <p className={ui.lead}>{m.lead}</p>
+          <p className={ui.lead} data-reveal="up" style={{ "--i": 2 } as React.CSSProperties}>{m.lead}</p>
         </div>
 
-        <div className={`${styles.panel} lg-thick rise`}>
+        <div className={`${styles.panel} lg-thick`} data-reveal="up">
           <div className={styles.scroller} tabIndex={0} role="region" aria-labelledby="model-title">
             <table className={styles.table}>
               <thead>
@@ -31,8 +31,8 @@ export function ModelSection() {
                 </tr>
               </thead>
               <tbody>
-                {m.rows.map(([aspect, paper, ours]) => (
-                  <tr key={aspect}>
+                {m.rows.map(([aspect, paper, ours], i) => (
+                  <tr key={aspect} data-row style={{ "--i": i } as React.CSSProperties}>
                     <th scope="row">{aspect}</th>
                     <td>{paper}</td>
                     <td data-ours>{ours}</td>
@@ -44,8 +44,8 @@ export function ModelSection() {
         </div>
 
         <dl className={styles.metrics}>
-          {m.metrics.map((x) => (
-            <div key={x.value} className="lg rise">
+          {m.metrics.map((x, i) => (
+            <div key={x.value} className="lg" data-reveal="zoom" style={{ "--i": i } as React.CSSProperties}>
               <dt>{x.label}</dt>
               <dd className="mono">{x.value}</dd>
             </div>

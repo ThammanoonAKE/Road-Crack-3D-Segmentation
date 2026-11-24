@@ -264,37 +264,111 @@ kbd {
 }
 
 /* ---------- entrances ---------- */
-/* .rise: an element fades up into place as it scrolls into view, tied to the scroll position itself.
-   --rise-from sets how far it travels, so the items of a row can arrive one after another.
-   Browsers without scroll-driven animations, and visitors who asked for less motion, see it in place. */
-@keyframes rise {
+/* An element with data-reveal plays an entrance when it scrolls into view. components/ScrollReveal.tsx sets
+   data-shown="false" on those waiting below the screen and "true" as each one enters.
+     data-reveal   up | left | right | zoom | blur: where the element comes from
+     --i           its place in a row or a list: each step waits 90 ms longer
+     data-grow     inside a revealed element: a bar that fills from the left
+     data-pop      a direct child that springs in (the step numbers)
+     data-row      a row that follows its panel in (the model table)
+   Without JavaScript, and for visitors who asked for less motion, everything is simply in place. */
+@keyframes reveal {
   from {
     opacity: 0;
-    translate: 0 var(--rise-from, 44px);
-    scale: 0.97;
+    translate: var(--reveal-x, 0) var(--reveal-y, 0);
+    scale: var(--reveal-scale, 1);
   }
 }
 
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .rise {
-      animation: rise linear both;
-      animation-timeline: view();
-      /* done once the element is wholly in view, or after 320 px for one taller than the screen */
-      animation-range: entry 0% entry min(100%, 320px);
-    }
+@keyframes reveal-blur {
+  from {
+    opacity: 0;
+    translate: 0 28px;
+    filter: blur(14px);
+  }
+}
 
-    .rise:nth-child(4n + 2) {
-      --rise-from: 72px;
-    }
+@keyframes reveal-grow {
+  from {
+    scale: 0 1;
+  }
+}
 
-    .rise:nth-child(4n + 3) {
-      --rise-from: 100px;
-    }
+@keyframes reveal-pop {
+  from {
+    opacity: 0;
+    scale: 0.35;
+    rotate: -14deg;
+  }
+}
 
-    .rise:nth-child(4n + 4) {
-      --rise-from: 128px;
-    }
+/* sideways entrances must not give the page a horizontal scrollbar while they play */
+main {
+  overflow-x: clip;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-shown="false"] {
+    opacity: 0;
+  }
+
+  [data-reveal][data-shown="true"] {
+    animation: reveal 850ms var(--ease-out) backwards;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+
+  /* each sets all three, so that an entrance nested in another does not inherit its travel */
+  [data-reveal="up"] {
+    --reveal-x: 0;
+    --reveal-y: 64px;
+    --reveal-scale: 0.96;
+  }
+
+  [data-reveal="left"] {
+    --reveal-x: -80px;
+    --reveal-y: 0;
+    --reveal-scale: 1;
+  }
+
+  [data-reveal="right"] {
+    --reveal-x: 80px;
+    --reveal-y: 0;
+    --reveal-scale: 1;
+  }
+
+  [data-reveal="zoom"] {
+    --reveal-x: 0;
+    --reveal-y: 28px;
+    --reveal-scale: 0.8;
+  }
+
+  [data-reveal="blur"][data-shown="true"] {
+    animation-name: reveal-blur;
+  }
+
+  [data-shown="true"] [data-grow] {
+    transform-origin: left;
+    animation: reveal-grow 1000ms var(--ease-out) backwards;
+    animation-delay: calc(var(--i, 0) * 90ms + 350ms);
+  }
+
+  [data-shown="true"] > [data-pop] {
+    animation: reveal-pop 560ms var(--spring) backwards;
+    animation-delay: calc(var(--i, 0) * 90ms + 150ms);
+  }
+
+  [data-shown="true"] [data-row] {
+    --reveal-x: 0;
+    --reveal-y: 20px;
+    --reveal-scale: 1;
+    animation: reveal 600ms var(--ease-out) backwards;
+    animation-delay: calc(var(--i, 0) * 80ms + 250ms);
+  }
+}
+
+@media print {
+  [data-shown="false"] {
+    opacity: 1;
   }
 }
 

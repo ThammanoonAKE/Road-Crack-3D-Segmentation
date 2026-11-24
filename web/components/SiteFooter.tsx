@@ -12,7 +12,7 @@ export function SiteFooter() {
   return (
     <footer className={styles.footer}>
       <div className={ui.wrap}>
-        <div className={`${styles.inner} lg`}>
+        <div className={`${styles.inner} lg`} data-reveal="up">
           <div className={styles.brand}>
             <Mark className={styles.mark} />
             <span>Road Crack 3D</span>

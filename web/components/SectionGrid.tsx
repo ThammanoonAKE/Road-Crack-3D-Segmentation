@@ -35,18 +35,20 @@ export function SectionGrid() {
     <section id="sections" className={ui.section} aria-labelledby="sections-title">
       <div className={ui.wrap}>
         <div className={styles.top}>
-          <div className={`${ui.head} rise`}>
-            <p className={ui.kicker}>{t.sections.kicker}</p>
-            <h2 id="sections-title" className={ui.title}>
+          <div className={ui.head}>
+            <p className={ui.kicker} data-reveal="left">{t.sections.kicker}</p>
+            <h2 id="sections-title" className={ui.title} data-reveal="blur" style={{ "--i": 1 } as React.CSSProperties}>
               {t.sections.title}
             </h2>
-            <p className={ui.lead}>{t.sections.lead}</p>
+            <p className={ui.lead} data-reveal="up" style={{ "--i": 2 } as React.CSSProperties}>{t.sections.lead}</p>
           </div>
           <button
             type="button"
             role="switch"
             aria-checked={all}
             className={`${styles.toggle} lg-clear`}
+            data-reveal="right"
+            style={{ "--i": 2 } as React.CSSProperties}
             onClick={() => setAll(!all)}
           >
             {t.sections.showAll}
@@ -55,10 +57,17 @@ export function SectionGrid() {
         </div>
 
         <ul className={styles.grid} data-all={all}>
-          {SECTIONS.map((s) => {
+          {SECTIONS.map((s, i) => {
             const pct = share(s) * 100;
             return (
-              <li key={s.n} className={`${styles.card} lg rise`} onPointerMove={lean} onPointerLeave={settle}>
+              <li
+                key={s.n}
+                className={`${styles.card} lg`}
+                data-reveal="up"
+                style={{ "--i": i % 4 } as React.CSSProperties}
+                onPointerMove={lean}
+                onPointerLeave={settle}
+              >
                 <div className={styles.media}>
                   <Image
                     src={`/media/sections/hole_${s.n}_off.webp`}
@@ -87,7 +96,7 @@ export function SectionGrid() {
                     </span>
                   </div>
                   <span className={styles.meter} aria-hidden>
-                    <span style={{ width: `${(100 * share(s)) / MAX_CRACK_SHARE}%` }} />
+                    <span data-grow style={{ width: `${(100 * share(s)) / MAX_CRACK_SHARE}%` }} />
                   </span>
                   <dl className={styles.facts}>
                     <div>
