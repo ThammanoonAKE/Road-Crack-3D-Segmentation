@@ -251,21 +251,16 @@ Retained from the original design:
 | Augmentation | Rotation, flipping, cropping (offline) | Rotation and flipping online, plus **strong photometric augmentation**: exposure, white balance, shadows, defocus and motion blur, noise, JPEG compression, low resolution, 10% greyscale. Also random scaling of 0.8–1.25× |
 | Decision threshold | – | 0.16, selected on the validation set |
 
-`crack_detector_1class_best` was trained on additional data:
+`crack_detector_1class_best` was also trained on these public datasets:
 - the line-scan pavement datasets CRKWH100 and CrackLS315, oversampled ×3;
-- NHA12D, oversampled ×2. Its unlabelled concrete joints act as negative examples;
-- about 18,600 annotated 448 px crops of in-house line-scan scans. Annotated joints and patches count as
-  background, and unannotated pixels that a teacher model predicts as crack are ignored;
-- about 12,000 crops of unannotated in-house scans, pseudo-labelled by an in-house three-class teacher, with
-  its predicted joints and patches removed.
+- NHA12D, oversampled ×2. Its unlabelled concrete joints act as negative examples.
 
 Its predicted masks drop regions smaller than 150 px.
 
 | Metric | `crack_detector` | `crack_detector_1class_best` |
 |---|---|---|
 | crack_merged test (1,695 images): F (2 px tolerance) / IoU / AP | 0.877 / 0.618 / 0.918 | 0.861 / 0.596 / 0.876 |
-| Mean F over 10 image corruptions | 0.870 | 0.851 |
-| In-house test scans: annotated cracks detected / joints predicted as crack | – | 71.2% / 14 of 358 |
+| Mean F over 10 corruptions of the same test images | 0.870 | 0.851 |
 
 The training code is not part of this repository.
 

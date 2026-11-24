@@ -118,8 +118,8 @@ const th = {
     ],
     metrics: [
       { value: "0.877", label: "F-score บนชุดทดสอบ crack_merged (คลาดได้ 2 พิกเซล)" },
-      { value: "0.870", label: "F-score เฉลี่ยบนภาพเสื่อมคุณภาพ 10 แบบ" },
-      { value: "71.2%", label: "รอยแตกที่หาเจอบนภาพสแกนภายใน (รุ่น 1-class)" },
+      { value: "0.870", label: "F-score เฉลี่ยเมื่อภาพชุดทดสอบเดียวกันถูกทำให้เสื่อมคุณภาพ 10 แบบ" },
+      { value: "0.918", label: "Average Precision (AP) บนชุดทดสอบ crack_merged" },
     ],
   },
   footer: {
@@ -289,8 +289,8 @@ const en: Copy = {
     ],
     metrics: [
       { value: "0.877", label: "F-score on the crack_merged test set (2 px tolerance)" },
-      { value: "0.870", label: "mean F-score over 10 image corruptions" },
-      { value: "71.2%", label: "of annotated cracks found on in-house scans (1-class model)" },
+      { value: "0.870", label: "mean F-score when the same test images are degraded in 10 ways" },
+      { value: "0.918", label: "average precision (AP) on the crack_merged test set" },
     ],
   },
   footer: {
