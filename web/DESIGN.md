@@ -59,7 +59,7 @@ Each material combines:
 | iOS switch | `ui.switch` | 51 × 31 px; red when on; the containing button has `role="switch"` |
 | Capsule buttons | `ui.primary`, `ui.secondary` | Primary is tinted red glass; secondary is clear glass; both are 48 px high |
 | Before/after slider | `CompareSlider` | `role="slider"`; arrow keys (Shift for ×5), Home/End; the knob is a glass lens |
-| Live point cloud | `HeroCloud` | Section 2 as about 180,000 points (react-three-fiber, drei); replaces the hero photograph once drawn |
+| Live point cloud | `HeroCloud` | Section 2 as about 180,000 points (react-three-fiber, drei); the stage is dark until it forms. The hero photograph is only its fallback |
 | Crack trace | `CrackTrace` | Centre lines traced from section 2, drawn over the hero photograph when the point cloud is not shown; static under reduced motion |
 | Inset grouped list | `Method`, viewer sheet | iOS Settings-style rows with inset hairline separators |
 | Floating toolbar | `viewer/ViewerApp` | Tab-bar capsule: highlight (labelled), auto-rotate, reset, full screen, panel |

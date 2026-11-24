@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState, type PointerEvent } from "react";
 import { ArrowRight } from "./Icons";
 import { useLang } from "./LangProvider";
-import { MAX_CRACK_SHARE, SECTIONS, megabytes, pad2, share } from "@/lib/sections";
+import { MAX_CRACK_SHARE, SECTIONS, pad2, share } from "@/lib/sections";
 import ui from "./ui.module.css";
 import styles from "./SectionGrid.module.css";
 
@@ -94,12 +94,7 @@ export function SectionGrid() {
                       <dt>{t.sections.gaussians}</dt>
                       <dd className="mono">{t.sections.millions((s.gaussians / 1e6).toFixed(2))}</dd>
                     </div>
-                    <div>
-                      <dt>{t.sections.size}</dt>
-                      <dd className="mono">{megabytes(s.bytes)} MB</dd>
-                    </div>
                   </dl>
-                  <p className={`${styles.clip} mono`}>{s.clip}</p>
                   <Link href={`/viewer/${s.n}`} className={styles.open}>
                     {t.sections.open(s.n)}
                     <ArrowRight />

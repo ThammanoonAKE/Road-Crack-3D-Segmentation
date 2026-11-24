@@ -18,24 +18,30 @@ export function EdgeAI() {
   const e = t.edge;
   const video = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
+  const held = useRef(false); // the visitor paused the clip: scrolling does not start it again
 
-  // Autoplay unless the visitor asked for reduced motion; the pause control is always there.
+  // The clip plays while at least half of it is on screen and pauses when it scrolls away, unless the visitor
+  // asked for reduced motion. The pause control is always there.
   useEffect(() => {
     const v = video.current;
-    if (!v) return;
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      v.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
-    }
+    if (!v || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const seen = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) v.pause();
+        else if (!held.current) v.play().catch(() => {});
+      },
+      { threshold: 0.5 },
+    );
+    seen.observe(v);
+    return () => seen.disconnect();
   }, []);
 
   const toggle = () => {
     const v = video.current;
     if (!v) return;
-    if (v.paused) v.play().then(() => setPlaying(true)).catch(() => {});
-    else {
-      v.pause();
-      setPlaying(false);
-    }
+    held.current = !v.paused;
+    if (v.paused) v.play().catch(() => {});
+    else v.pause();
   };
 
   return (
@@ -61,6 +67,8 @@ export function EdgeAI() {
                 loop
                 playsInline
                 preload="metadata"
+                onPlay={() => setPlaying(true)}
+                onPause={() => setPlaying(false)}
                 width={960}
                 height={544}
               />

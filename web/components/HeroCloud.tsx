@@ -15,7 +15,7 @@ export type CloudMode = "model" | "trace" | "highlight";
  *   - A scan line sweeps the surface, the camera drifts and leans towards the pointer.
  *   - "trace" lets the red spread along the labelled cracks from the middle; "highlight" shows them all and
  *     dims the rest of the road.
- * Loaded only on the client, and not at all under reduced motion: Hero keeps the photograph then.
+ * Loaded only on the client, and not at all under reduced motion: Hero shows the photograph then.
  */
 
 interface Cloud {
@@ -194,19 +194,35 @@ function Road({ cloud, mode, run, onDrawn }: { cloud: Cloud; mode: CloudMode; ru
   );
 }
 
-export default function HeroCloud({ mode, run, onReady }: { mode: CloudMode; run: number; onReady: () => void }) {
+export default function HeroCloud({
+  mode,
+  run,
+  onError,
+}: {
+  mode: CloudMode;
+  run: number;
+  onError: () => void;
+}) {
   const root = useRef<HTMLDivElement>(null);
   const [cloud, setCloud] = useState<Cloud | null>(null);
   const [drawn, setDrawn] = useState(false);
   const [visible, setVisible] = useState(true);
   const [dpr, setDpr] = useState(() => Math.min(window.devicePixelRatio || 1, 1.75));
 
+  // the points are fetched once; the latest onError is reached through a ref, so a new callback does not refetch
+  const fail = useRef(onError);
+  useEffect(() => {
+    fail.current = onError;
+  }, [onError]);
+
   useEffect(() => {
     const abort = new AbortController();
     let loaded: Cloud | null = null;
     loadCloud(abort.signal)
       .then((c) => setCloud((loaded = c)))
-      .catch(() => {}); // without the points, Hero keeps its photograph
+      .catch(() => {
+        if (!abort.signal.aborted) fail.current(); // without the points, Hero shows its photograph
+      });
     return () => {
       abort.abort();
       loaded?.geometry.dispose();
@@ -236,10 +252,7 @@ export default function HeroCloud({ mode, run, onReady }: { mode: CloudMode; run
             cloud={cloud}
             mode={mode}
             run={run}
-            onDrawn={() => {
-              setDrawn(true);
-              onReady();
-            }}
+            onDrawn={() => setDrawn(true)}
           />
         </Canvas>
       )}

@@ -158,7 +158,6 @@ export function ViewerApp({ n }: { n: number }) {
           <h1 className={styles.title}>
             {v.section} {n}
           </h1>
-          <p className={`${styles.clip} mono`}>{section.clip}</p>
         </div>
 
         <dl className={styles.group}>
@@ -174,10 +173,6 @@ export function ViewerApp({ n }: { n: number }) {
           <div>
             <dt>{v.gaussians}</dt>
             <dd className="mono">{section.gaussians.toLocaleString("en-US")}</dd>
-          </div>
-          <div>
-            <dt>{v.size}</dt>
-            <dd className="mono">{mb} MB</dd>
           </div>
           <div>
             <dt>{v.render}</dt>

@@ -5,6 +5,9 @@
 *.ksplat filter=lfs diff=lfs merge=lfs -text
 *.pt filter=lfs diff=lfs merge=lfs -text
 *.mp4 filter=lfs diff=lfs merge=lfs -text
+# The website's own clip is 5 MB and stays in git: hosts that build from the repository without Git LFS
+# (Vercel by default) would otherwise publish the LFS pointer instead of the video.
+web/public/media/video/*.mp4 -filter -diff -merge -text
 
 # Small binaries stay in git.
 *.bin binary

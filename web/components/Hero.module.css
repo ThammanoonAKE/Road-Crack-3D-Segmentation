@@ -21,23 +21,25 @@
   mask-image: linear-gradient(180deg, #000 72%, transparent 100%);
 }
 
+/* The photograph stands in for the live point cloud: it shows only when Hero asks for it (reduced motion, data
+   saving, no WebGL) and, before the page's script has run, to visitors known to need it. Otherwise the stage
+   stays dark until the cloud forms. */
 .img {
   object-fit: cover;
-  transition: opacity var(--dur-slow) var(--ease-out);
-}
-
-.on {
   opacity: 0;
   transition: opacity var(--dur-slow) var(--ease-out);
 }
 
-.stage[data-mode="highlight"] .on {
+.stage[data-photo="true"] .img:not(.on),
+.stage[data-photo="true"][data-mode="highlight"] .on {
   opacity: 1;
 }
 
-/* once the live point cloud is drawn it replaces the photograph */
-.stage[data-cloud="true"] .img {
-  opacity: 0;
+@media (prefers-reduced-motion: reduce), (scripting: none) {
+  .img:not(.on),
+  .stage[data-mode="highlight"] .on {
+    opacity: 1;
+  }
 }
 
 /* legibility: darken toward the bottom left, where the card sits */
@@ -87,24 +89,6 @@
   border-radius: var(--r-xl) !important;
 }
 
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-  font-size: var(--t-footnote);
-  font-weight: 600;
-  color: var(--label-2);
-}
-
-.eyebrow::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--red);
-  box-shadow: 0 0 10px var(--red);
-}
-
 .title {
   font-size: var(--t-large);
   font-weight: 700;
@@ -127,16 +111,6 @@
 .modes {
   display: grid;
   justify-items: end;
-  gap: var(--s-3);
-}
-
-.caption {
-  max-width: 420px;
-  padding: var(--s-3) var(--s-4);
-  border-radius: var(--r-md) !important;
-  font-size: var(--t-caption);
-  line-height: 1.55;
-  color: var(--label-2);
 }
 
 /* widgets */
@@ -189,10 +163,6 @@
     order: -1;
   }
 
-  .caption {
-    display: none;
-  }
-
   .widgets {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -206,10 +176,6 @@
 
   .card {
     padding: var(--s-5);
-  }
-
-  .chips span:last-child {
-    display: none;
   }
 
   .widget {

@@ -137,11 +137,6 @@
   font-size: var(--t-title1);
 }
 
-.clip {
-  font-size: var(--t-caption);
-  color: var(--label-2);
-}
-
 /* iOS inset grouped list */
 .group {
   display: grid;

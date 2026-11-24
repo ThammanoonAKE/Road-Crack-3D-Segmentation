@@ -184,12 +184,6 @@
   font-size: var(--t-footnote);
 }
 
-.clip {
-  font-size: var(--t-caption);
-  color: var(--label-2);
-  word-break: break-all;
-}
-
 .open {
   display: inline-flex;
   align-items: center;

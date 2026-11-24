@@ -24,9 +24,11 @@ const watchMotion = (changed: () => void) => {
   query.addEventListener("change", changed);
   return () => query.removeEventListener("change", changed);
 };
-/** The live point cloud is for visitors who have not asked for less motion or less data. */
-const wantsCloud = () =>
-  !window.matchMedia(STILL).matches && !(navigator as { connection?: { saveData?: boolean } }).connection?.saveData;
+/** The live point cloud is for visitors who have not asked for less motion or less data; the rest get the photograph. */
+const heroKind = () =>
+  window.matchMedia(STILL).matches || (navigator as { connection?: { saveData?: boolean } }).connection?.saveData
+    ? "photo"
+    : "cloud";
 
 /** Without WebGL the canvas throws: the hero then stays on its photograph. */
 class CloudBoundary extends Component<{ children: ReactNode; onError: () => void }, { failed: boolean }> {
@@ -46,10 +48,11 @@ export function Hero() {
   const { t } = useLang();
   const [mode, setMode] = useState<Mode>("trace");
   const [run, setRun] = useState(0);
-  const wanted = useSyncExternalStore(watchMotion, wantsCloud, () => false);
+  // null on the server and until hydration: the stage stays dark, so the photograph never flashes before the cloud
+  const kind = useSyncExternalStore(watchMotion, heroKind, () => null);
   const [failed, setFailed] = useState(false);
-  const [drawn, setDrawn] = useState(false);
-  const live = wanted && !failed; // the cloud is mounted, though perhaps not drawn yet
+  const live = kind === "cloud" && !failed; // the cloud is mounted, though perhaps not drawn yet
+  const photo = kind === "photo" || failed;
 
   const choose = (next: Mode) => {
     if (next === "trace") setRun((r) => r + 1); // replay the propagation each time the trace is shown
@@ -58,21 +61,20 @@ export function Hero() {
 
   return (
     <section className={styles.hero} aria-labelledby="hero-title">
-      <figure className={styles.stage} data-mode={mode} data-cloud={live && drawn}>
+      <figure className={styles.stage} data-mode={mode} data-photo={photo}>
         <div className={styles.photo}>
           <Image src="/media/sections/hole_2_off.webp" alt="" fill preload sizes="100vw" className={styles.img} />
           <Image src="/media/sections/hole_2_on.webp" alt="" fill sizes="100vw" className={`${styles.img} ${styles.on}`} />
-          {mode === "trace" && !live && <CrackTrace run={run} cover />}
+          {mode === "trace" && photo && <CrackTrace run={run} cover />}
           {live && (
             <CloudBoundary onError={() => setFailed(true)}>
-              <HeroCloud mode={mode} run={run} onReady={() => setDrawn(true)} />
+              <HeroCloud mode={mode} run={run} onError={() => setFailed(true)} />
             </CloudBoundary>
           )}
           <div className={styles.shade} aria-hidden />
         </div>
 
         <div className={`${styles.chips}`} aria-hidden>
-          <span className="lg-clear mono">SEC-02 · {HERO.clip}</span>
           <span className="lg-clear mono">
             {t.hero.chip((HERO.gaussians / 1e6).toFixed(2), (share(HERO) * 100).toFixed(1))}
           </span>
@@ -80,7 +82,6 @@ export function Hero() {
 
         <div className={styles.overlay}>
           <div className={`${styles.card} lg-thick`}>
-            <p className={styles.eyebrow}>{t.hero.eyebrow}</p>
             <h1 id="hero-title" className={styles.title}>
               {t.hero.title}
             </h1>
@@ -104,9 +105,6 @@ export function Hero() {
               onChange={choose}
               options={(["model", "trace", "highlight"] as const).map((m) => ({ value: m, label: t.hero.views[m] }))}
             />
-            <figcaption className={`${styles.caption} lg-clear`}>
-              {live && drawn ? t.hero.captionCloud : t.hero.caption}
-            </figcaption>
           </div>
         </div>
       </figure>
