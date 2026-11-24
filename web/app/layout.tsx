@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans_Thai } from "next/font/google";
 import { Ambient, GlassFilter } from "@/components/GlassFilter";
@@ -42,6 +43,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <GlassFilter />
         <Ambient />
         <LangProvider>{children}</LangProvider>
+        {/* Vercel Web Analytics: counts visitors and page views on the deployed site, without cookies */}
+        <Analytics />
       </body>
     </html>
   );
