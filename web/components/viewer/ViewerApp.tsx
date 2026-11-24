@@ -30,6 +30,7 @@ export function ViewerApp({ n }: { n: number }) {
   const [attempt, setAttempt] = useState(0);
   const [highlight, setHighlight] = useState(true);
   const [strength, setStrength] = useState(0.8);
+  const [dim, setDim] = useState(true);
   const [autoRotate, setAutoRotate] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
@@ -79,8 +80,8 @@ export function ViewerApp({ n }: { n: number }) {
   }, [status]);
 
   useEffect(() => {
-    if (status === "ready") ctrl.current?.setHighlight(highlight ? strength : 0);
-  }, [status, highlight, strength]);
+    if (status === "ready") ctrl.current?.setHighlight(highlight ? strength : 0, highlight && dim);
+  }, [status, highlight, strength, dim]);
 
   useEffect(() => {
     if (status === "ready") ctrl.current?.setAutoRotate(autoRotate);
@@ -237,6 +238,20 @@ export function ViewerApp({ n }: { n: number }) {
             />
             <span className="mono">{Math.round(strength * 100)}%</span>
           </label>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={dim}
+            className={styles.row}
+            onClick={() => setDim((d) => !d)}
+            disabled={!ready || !highlight}
+          >
+            <span className={styles.rowLabel}>
+              <span className={`${styles.swatch} ${styles.swatchDim}`} aria-hidden />
+              {v.dim}
+            </span>
+            <span className={ui.switch} aria-hidden />
+          </button>
           <button
             type="button"
             role="switch"

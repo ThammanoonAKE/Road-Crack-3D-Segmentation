@@ -238,6 +238,11 @@
   background: var(--red);
 }
 
+/* the "dim the road" row: the same square, in the grey the road is dimmed to */
+.swatchDim {
+  background: rgb(120 120 128 / 0.7);
+}
+
 .range {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 46px;

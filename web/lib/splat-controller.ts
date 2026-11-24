@@ -15,6 +15,7 @@ interface CameraFile {
 }
 
 const CRACK_RGB = [255, 40, 40];
+const DIMMED = 0.45; // brightness left to the rest of the road when it is dimmed, as in the home page's highlight
 const DOWNLOADING = 0; // LoaderStatus.Downloading in GaussianSplats3D 0.4.7 (not exported)
 
 export function hasWebGL2(): boolean {
@@ -52,7 +53,9 @@ export class SplatController {
   private viewer: Viewer | null = null;
   private disposed = false;
   private indices: Uint32Array | null = null;
-  private original: Uint8Array | null = null;
+  private base: Uint8Array | null = null; // every Gaussian's colour as loaded, rgba
+  private isCrack: Uint8Array | null = null;
+  private dimmed = false;
   private home: CameraFile | null = null;
   private resetFrame = 0;
   info = { ss: 1, gpu: "", count: 0, labelled: 0 };
@@ -124,11 +127,11 @@ export class SplatController {
       console.warn(`hole_${n}.cracks.bin does not fit this reconstruction (${count} Gaussians)`);
       return;
     }
-    const colors = this.viewer.splatMesh.getSplatDataTextures().baseData.colors;
-    const original = new Uint8Array(indices.length * 3);
-    for (let k = 0; k < indices.length; k++) original.set(colors.subarray(indices[k] * 4, indices[k] * 4 + 3), k * 3);
+    const isCrack = new Uint8Array(count);
+    for (let k = 0; k < indices.length; k++) isCrack[indices[k]] = 1;
     this.indices = indices;
-    this.original = original;
+    this.isCrack = isCrack;
+    this.base = this.viewer.splatMesh.getSplatDataTextures().baseData.colors.slice(0, count * 4);
     this.info.labelled = indices.length;
   }
 
@@ -136,21 +139,31 @@ export class SplatController {
     return !!this.indices;
   }
 
-  /** Tint the crack Gaussians towards red by `strength` (0 = off) in the viewer's own colour data. */
-  setHighlight(strength: number) {
-    if (!this.viewer || !this.indices || !this.original) return;
+  /** Tint the crack Gaussians towards red by `strength` (0 = off) in the viewer's own colour data, and with `dim`
+   *  darken every other Gaussian so that the cracks stand out. */
+  setHighlight(strength: number, dim = false) {
+    if (!this.viewer || !this.indices || !this.base || !this.isCrack) return;
     const textures = this.viewer.splatMesh.getSplatDataTextures();
     const colors = textures.baseData.colors;
     const packed = textures.centerColors.data;
-    const { indices, original } = this;
+    const { indices, base, isCrack } = this;
+    // As the library packs a colour (rgbaArrayToInteger): R | G << 8 | B << 16 | A << 24.
+    const pack = (o: number) => colors[o] | (colors[o + 1] << 8) | (colors[o + 2] << 16) | (colors[o + 3] << 24);
     for (let k = 0; k < indices.length; k++) {
       const o = indices[k] * 4;
-      for (let c = 0; c < 3; c++) {
-        const v = original[k * 3 + c];
-        colors[o + c] = Math.round(v * (1 - strength) + CRACK_RGB[c] * strength);
+      for (let c = 0; c < 3; c++) colors[o + c] = Math.round(base[o + c] * (1 - strength) + CRACK_RGB[c] * strength);
+      packed[o] = pack(o);
+    }
+    // The rest of the road is millions of Gaussians: it is rewritten only when the dimming is switched.
+    if (dim !== this.dimmed) {
+      this.dimmed = dim;
+      const keep = dim ? DIMMED : 1;
+      for (let i = 0; i < isCrack.length; i++) {
+        if (isCrack[i]) continue;
+        const o = i * 4;
+        for (let c = 0; c < 3; c++) colors[o + c] = Math.round(base[o + c] * keep);
+        packed[o] = pack(o);
       }
-      // As the library packs it (rgbaArrayToInteger): R | G << 8 | B << 16 | A << 24.
-      packed[o] = colors[o] | (colors[o + 1] << 8) | (colors[o + 2] << 16) | (colors[o + 3] << 24);
     }
     textures.centerColors.texture.needsUpdate = true;
   }

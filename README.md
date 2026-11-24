@@ -4,8 +4,11 @@ Turning phone video of cracked concrete roads into 3D Gaussian Splatting reconst
 segmented on every Gaussian. A browser viewer can highlight the cracks, and a TensorRT pipeline detects
 cracks in video in real time.
 
+**Live demo: [road-crack-3-d-segmentation.vercel.app](https://road-crack-3-d-segmentation.vercel.app/)**. It shows the eight reconstructions in the
+browser, with the crack highlight and the crack measurements.
+
 <p align="center">
-  <img src="docs/media/viewer_crack_highlight.jpg" width="100%" alt="Reconstructed road surface without and with the crack highlight">
+  <a href="https://road-crack-3-d-segmentation.vercel.app/"><img src="docs/media/viewer_crack_highlight.jpg" width="100%" alt="Reconstructed road surface without and with the crack highlight; opens the live demo"></a>
 </p>
 
 ## Contents
@@ -36,7 +39,7 @@ reuses the same crack model for on-device inspection.
   of the clip. Its per-pixel crack probability is carried onto the Gaussians through the renderer's gradients,
   which gives each Gaussian a crack share; Gaussians above a threshold are labelled as crack.
 - **Visualisation.** The eight reconstructed road sections are published for the browser
-  (GaussianSplats3D). The crack highlight can be switched on and off.
+  (GaussianSplats3D) in the [live demo](https://road-crack-3-d-segmentation.vercel.app/). The crack highlight can be switched on and off.
 - **Edge inference.** The crack model runs on video frame by frame, with temporal stabilisation. It was
   deployed as a TensorRT engine and evaluated in a simulated 30 fps camera stream.
 
@@ -181,6 +184,7 @@ therefore approximate:
 - The reconstructions are converted to `.ksplat` (half precision, base colour only) and shown with
   GaussianSplats3D.
 - The highlight is drawn by tinting the viewer's colour texture of the labelled Gaussians.
+  A switch dims every other Gaussian so that the cracks stand out.
 - Supersampling is chosen from the GPU and the screen size.
 - The data panel shows the section's crack measurements.
 - The viewer opens with the camera gliding down to its opening pose.
@@ -373,6 +377,7 @@ Viewer controls:
 
 ### Deploying (Vercel or elsewhere)
 
+The [live demo](https://road-crack-3-d-segmentation.vercel.app/) is this deployment.
 The Next.js app in `web/` deploys to Vercel as a standard project; set its *Root Directory* to `web`.
 
 The eight reconstructions are 80–110 MB each, about 750 MB in total, so production builds load them from
@@ -388,8 +393,8 @@ To serve them from your own storage:
 2. Set `NEXT_PUBLIC_SPLAT_BASE_URL` to the folder's public URL, in `web/.env.production` or in the host's
    environment variables.
 
-Set `NEXT_PUBLIC_SITE_URL` (absolute Open Graph URLs) and, optionally, `NEXT_PUBLIC_REPO_URL` (source link in
-the footer).
+`web/.env.production` also sets `NEXT_PUBLIC_SITE_URL` (absolute Open Graph URLs) to the demo's address; change
+it for another deployment. Optionally set `NEXT_PUBLIC_REPO_URL` (source link in the footer).
 
 ### Reproducing the pipeline
 
