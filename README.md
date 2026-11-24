@@ -185,7 +185,7 @@ therefore approximate:
   GaussianSplats3D.
 - The highlight is drawn by tinting the viewer's colour texture of the labelled Gaussians.
   A switch dims every other Gaussian so that the cracks stand out.
-- Supersampling is chosen from the GPU and the screen size.
+- Supersampling is chosen from the GPU and the screen size, and can be changed in the data panel (1× to 4×).
 - The data panel shows the section's crack measurements.
 - The viewer opens with the camera gliding down to its opening pose.
 - The home page draws section 2 as a live point cloud of about 180,000 points, with react-three-fiber.

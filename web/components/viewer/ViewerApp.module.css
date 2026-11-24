@@ -172,6 +172,16 @@
   font-size: var(--t-sub);
 }
 
+/* the supersampling row: a segmented control in the value's place, narrow enough to sit beside the label */
+.group > .quality {
+  padding: 4px 8px 4px var(--s-4);
+}
+
+.quality dd button {
+  min-width: 42px;
+  padding: 0;
+}
+
 /* the measured figures, with the footnote that qualifies them */
 .measure {
   display: grid;

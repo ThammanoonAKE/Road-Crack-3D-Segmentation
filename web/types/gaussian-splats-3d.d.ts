@@ -27,7 +27,10 @@ declare module "@mkkellogg/gaussian-splats-3d" {
     constructor(options: Record<string, unknown>);
     camera: { position: Vec3; up: Vec3 };
     controls: OrbitControls | null;
+    devicePixelRatio: number;
+    renderer: { setPixelRatio(ratio: number): void };
     splatMesh: {
+      devicePixelRatio: number;
       getSplatCount(): number;
       getSplatDataTextures(): { baseData: { colors: Uint8Array }; centerColors: DataTexture };
     };

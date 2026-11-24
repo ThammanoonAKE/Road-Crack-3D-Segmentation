@@ -39,14 +39,19 @@ function gpuName(): string {
   }
 }
 
-/** Render at ss times the screen's pixel density. On a discrete GPU, the most that keeps the drawing buffer near
- *  32 M pixels (4x on a 1080p screen); on an integrated one, 2x for small scenes and 1x for large ones. */
-function supersampling(gaussians: number, gpu: string, ratio: number, w: number, h: number): number {
-  const widest = 16384 / (w * ratio);
-  if (/NVIDIA|GeForce|Quadro|Radeon (RX|Pro)|Arc\(TM\) A/i.test(gpu)) {
-    return Math.max(1, Math.min(4, widest, Math.floor(Math.sqrt(32e6 / (w * h)) / ratio)));
-  }
-  return gaussians < 1.5e6 ? 2 : 1;
+/** The supersampling factors this screen can take: whole factors up to 4 that keep the drawing buffer within
+ *  32 M pixels and 16 384 pixels wide (1x to 4x on a 1080p screen). */
+function supersamplingOptions(ratio: number, w: number, h: number): number[] {
+  const most = Math.min(4, Math.floor(16384 / (w * ratio)), Math.floor(Math.sqrt(32e6 / (w * h)) / ratio));
+  return Array.from({ length: Math.max(1, most) }, (_, i) => i + 1);
+}
+
+/** The factor a section opens at: render at ss times the screen's pixel density. On a discrete GPU, the highest
+ *  the screen can take; on an integrated one, 2x for small scenes and 1x for large ones. */
+function supersampling(gaussians: number, gpu: string, options: number[]): number {
+  const most = options[options.length - 1];
+  if (/NVIDIA|GeForce|Quadro|Radeon (RX|Pro)|Arc\(TM\) A/i.test(gpu)) return most;
+  return Math.min(most, gaussians < 1.5e6 ? 2 : 1);
 }
 
 export class SplatController {
@@ -58,9 +63,16 @@ export class SplatController {
   private dimmed = false;
   private home: CameraFile | null = null;
   private resetFrame = 0;
-  info = { ss: 1, gpu: "", count: 0, labelled: 0 };
+  private ratio = 1; // the screen's own pixel density when the section was opened
+  info = { ss: 1, options: [1], gpu: "", count: 0, labelled: 0 };
 
-  async load(root: HTMLElement, n: number, onStage: (stage: Stage, percent: number) => void): Promise<void> {
+  /** `preferred` is the supersampling the visitor chose earlier; it is used where this screen can take it. */
+  async load(
+    root: HTMLElement,
+    n: number,
+    onStage: (stage: Stage, percent: number) => void,
+    preferred: number | null = null,
+  ): Promise<void> {
     const GS = await import("@mkkellogg/gaussian-splats-3d");
     const response = await fetch(splatUrl(n, "json"));
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
@@ -68,10 +80,11 @@ export class SplatController {
     if (this.disposed) return;
     this.home = camera;
 
-    const ratio = window.devicePixelRatio || 1;
+    const ratio = (this.ratio = window.devicePixelRatio || 1);
     const gpu = gpuName();
-    const ss = supersampling(camera.gaussians, gpu, ratio, root.clientWidth || innerWidth, root.clientHeight || innerHeight);
-    this.info = { ...this.info, ss, gpu };
+    const options = supersamplingOptions(ratio, root.clientWidth || innerWidth, root.clientHeight || innerHeight);
+    const ss = preferred !== null && options.includes(preferred) ? preferred : supersampling(camera.gaussians, gpu, options);
+    this.info = { ...this.info, ss, options, gpu };
 
     // The viewer reads window.devicePixelRatio once, in its constructor: override it for that call only.
     const original = Object.getOwnPropertyDescriptor(window, "devicePixelRatio");
@@ -89,7 +102,8 @@ export class SplatController {
         antialiased: true,
         sphericalHarmonicsDegree: camera.shDegree || 0,
         sceneRevealMode: GS.SceneRevealMode.Instant,
-        maxScreenSpaceSplatSize: 1024 * ss,
+        // compiled into the shader, so sized for the highest supersampling that can be chosen later
+        maxScreenSpaceSplatSize: 1024 * options[options.length - 1],
       });
     } finally {
       if (original) Object.defineProperty(window, "devicePixelRatio", original);
@@ -166,6 +180,18 @@ export class SplatController {
       }
     }
     textures.centerColors.texture.needsUpdate = true;
+  }
+
+  /** Change the supersampling of the running viewer. The library read the pixel ratio once, in its constructor,
+   *  and uses its own copies of it for the drawing buffer and for the splats' size on screen. */
+  setSupersampling(ss: number) {
+    const v = this.viewer;
+    if (!v || !this.info.options.includes(ss)) return;
+    const density = ss * this.ratio;
+    v.devicePixelRatio = density;
+    v.splatMesh.devicePixelRatio = density;
+    v.renderer.setPixelRatio(density);
+    this.info.ss = ss;
   }
 
   setAutoRotate(on: boolean) {

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, Collapse, Expand, Mark, Reset, Rotate, Sliders } from "../Icons";
 import { LangSwitch } from "../LangSwitch";
+import { Segmented } from "../Segmented";
 import { useLang } from "../LangProvider";
 import { MAX_CRACK_SHARE, SECTIONS, getMetrics, getSection, megabytes, pad2, share } from "@/lib/sections";
 import { SplatController, hasWebGL2, type Stage } from "@/lib/splat-controller";
@@ -12,6 +13,9 @@ import ui from "../ui.module.css";
 import styles from "./ViewerApp.module.css";
 
 type Status = Stage | "error" | "nowebgl";
+
+// The supersampling the visitor last chose, kept while they move between sections.
+let chosenSs: number | null = null;
 
 export function ViewerApp({ n }: { n: number }) {
   const section = getSection(n)!;
@@ -34,7 +38,7 @@ export function ViewerApp({ n }: { n: number }) {
   const [autoRotate, setAutoRotate] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
-  const [info, setInfo] = useState({ ss: 1, gpu: "" });
+  const [info, setInfo] = useState({ ss: 1, options: [1], gpu: "" });
 
   // On a phone the panel starts closed: the reconstruction comes first.
   useEffect(() => {
@@ -54,13 +58,18 @@ export function ViewerApp({ n }: { n: number }) {
     let live = true;
     setStatus("download");
     setPercent(0);
-    c.load(root, n, (s, p) => {
-      if (!live) return;
-      setStatus(s);
-      setPercent(p);
-    })
+    c.load(
+      root,
+      n,
+      (s, p) => {
+        if (!live) return;
+        setStatus(s);
+        setPercent(p);
+      },
+      chosenSs,
+    )
       .then(() => {
-        if (live) setInfo({ ss: c.info.ss, gpu: c.info.gpu });
+        if (live) setInfo({ ss: c.info.ss, options: c.info.options, gpu: c.info.gpu });
       })
       .catch((err: unknown) => {
         if (!live) return;
@@ -92,6 +101,13 @@ export function ViewerApp({ n }: { n: number }) {
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
+
+  const pickSs = (value: string) => {
+    const ss = Number(value);
+    chosenSs = ss;
+    ctrl.current?.setSupersampling(ss);
+    setInfo((i) => ({ ...i, ss }));
+  };
 
   const toggleFullscreen = useCallback(() => {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
@@ -175,10 +191,21 @@ export function ViewerApp({ n }: { n: number }) {
             <dt>{v.gaussians}</dt>
             <dd className="mono">{section.gaussians.toLocaleString("en-US")}</dd>
           </div>
-          <div>
+          <div className={styles.quality}>
             <dt>{v.render}</dt>
             <dd className="mono" title={info.gpu}>
-              {ready ? `${+info.ss.toFixed(2)}× SS` : "—"}
+              {!ready ? (
+                "—"
+              ) : info.options.length > 1 ? (
+                <Segmented
+                  label={v.render}
+                  value={String(info.ss)}
+                  onChange={pickSs}
+                  options={info.options.map((o) => ({ value: String(o), label: `${o}×` }))}
+                />
+              ) : (
+                `${info.ss}×`
+              )}
             </dd>
           </div>
         </dl>
