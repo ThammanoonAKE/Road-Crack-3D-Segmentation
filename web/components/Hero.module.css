@@ -52,23 +52,6 @@
   pointer-events: none;
 }
 
-.chips {
-  position: absolute;
-  top: 104px;
-  right: var(--gutter);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: var(--s-2);
-}
-
-.chips span {
-  padding: 7px 14px;
-  border-radius: var(--r-capsule) !important;
-  font-size: var(--t-caption);
-  color: var(--label);
-}
-
 .overlay {
   position: absolute;
   inset: auto 0 0;

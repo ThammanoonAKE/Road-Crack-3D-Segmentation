@@ -8,12 +8,10 @@ import { CrackTrace } from "./CrackTrace";
 import { ArrowRight, Cube } from "./Icons";
 import { useLang } from "./LangProvider";
 import { Segmented } from "./Segmented";
-import { getSection, share } from "@/lib/sections";
 import ui from "./ui.module.css";
 import styles from "./Hero.module.css";
 
 type Mode = "model" | "trace" | "highlight";
-const HERO = getSection(2)!;
 
 // three.js and the point cloud load after the page is interactive, and only in the browser
 const HeroCloud = dynamic(() => import("./HeroCloud"), { ssr: false });
@@ -72,12 +70,6 @@ export function Hero() {
             </CloudBoundary>
           )}
           <div className={styles.shade} aria-hidden />
-        </div>
-
-        <div className={`${styles.chips}`} aria-hidden>
-          <span className="lg-clear mono">
-            {t.hero.chip((HERO.gaussians / 1e6).toFixed(2), (share(HERO) * 100).toFixed(1))}
-          </span>
         </div>
 
         <div className={styles.overlay}>

@@ -22,7 +22,6 @@ const th = {
     secondary: "อ่านวิธีการ",
     views: { model: "แบบจำลอง", trace: "เส้นรอยแตก", highlight: "ไฮไลต์" },
     viewsLabel: "รูปแบบการแสดงภาพ",
-    chip: (m: string, pct: string) => `${m} ล้านเกาเซียน · รอยแตก ${pct}%`,
   },
   figures: [
     { value: "8 / 8", label: "หลุมที่สร้างแบบจำลองและระบุรอยแตกแล้ว" },
@@ -107,14 +106,14 @@ const th = {
     kicker: "04 — โมเดล",
     title: "โมเดลตรวจจับรอยแตก",
     lead: "ต่อยอดสถาปัตยกรรม DeepCrack (Zou et al., IEEE TIP 2019) โดยเปลี่ยน encoder, decoder, loss และข้อมูลที่ใช้ฝึก",
-    headers: ["ประเด็น", "DeepCrack (2019)", "งานนี้"],
+    headers: ["หัวข้อ", "DeepCrack ต้นฉบับ (2019)", "โมเดลของเรา"],
     rows: [
       ["Encoder", "VGG16 / SegNet ฝึกจากศูนย์", "ConvNeXt-Small ที่ฝึกล่วงหน้าบน ImageNet"],
       ["Decoder", "Unpooling ด้วยตำแหน่งจาก max-pooling", "แบบ U-Net: upsample แล้วต่อกับ feature ของ encoder"],
-      ["จำนวนสเกล", "5", "6 — เพิ่ม detail branch ที่ความละเอียดเต็มและครึ่งหนึ่ง สำหรับรอยแตกกว้าง 1–2 พิกเซล"],
+      ["ระดับความละเอียด", "5", "6 — เพิ่ม detail branch ที่ความละเอียดเต็มและครึ่งหนึ่ง สำหรับรอยแตกกว้าง 1–2 พิกเซล"],
       ["Loss", "Cross-entropy รวมทุกพิกเซล", "Cross-entropy เฉลี่ยต่อพิกเซล + soft Dice และละเว้นพิกเซลที่ไม่มี label ได้"],
-      ["การฝึก", "SGD, batch 2, 100k รอบ, FP32", "AdamW, batch 8, 50k รอบ, bfloat16, EMA ของน้ำหนัก"],
-      ["ข้อมูล", "CrackTree260", "crack_merged 12 แหล่ง (11,503 ภาพ) และ augmentation ด้านแสง ความเบลอ และสัญญาณรบกวน"],
+      ["วิธีฝึกโมเดล", "SGD, batch 2, 100k รอบ, FP32", "AdamW, batch 8, 50k รอบ, bfloat16, EMA ของน้ำหนัก"],
+      ["ข้อมูลที่ใช้ฝึก", "CrackTree260", "crack_merged 12 แหล่ง (11,503 ภาพ) และ augmentation ด้านแสง ความเบลอ และสัญญาณรบกวน"],
     ],
     metrics: [
       { value: "0.877", label: "F-score บนชุดทดสอบ crack_merged (คลาดได้ 2 พิกเซล)" },
@@ -193,7 +192,6 @@ const en: Copy = {
     secondary: "Read the method",
     views: { model: "Reconstruction", trace: "Crack trace", highlight: "Highlight" },
     viewsLabel: "Image mode",
-    chip: (m: string, pct: string) => `${m} M Gaussians · ${pct}% crack`,
   },
   figures: [
     { value: "8 / 8", label: "sections reconstructed and labelled" },
@@ -278,7 +276,7 @@ const en: Copy = {
     kicker: "04 — Model",
     title: "Crack segmentation model",
     lead: "Builds on the DeepCrack architecture (Zou et al., IEEE TIP 2019), with a new encoder, decoder, loss and training data.",
-    headers: ["Aspect", "DeepCrack (2019)", "This work"],
+    headers: ["Topic", "Original DeepCrack (2019)", "Our model"],
     rows: [
       ["Encoder", "VGG16 / SegNet, trained from scratch", "ConvNeXt-Small, ImageNet-pretrained"],
       ["Decoder", "Unpooling with max-pooling indices", "U-Net-style: upsample, then concatenate the encoder feature"],
