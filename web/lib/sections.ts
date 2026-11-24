@@ -1,7 +1,24 @@
 // The eight reconstructed road sections. Figures come from the files in public/splats:
 // gaussians = the .json "gaussians" field, crack = the number of indices in the .cracks.bin, bytes = the .ksplat size.
 
+import measured from "./crack-metrics.json";
+
 export type Refinement = "top" | "tiles4k";
+
+/** A section's cracks measured on the road plane (tools/crack_metrics.mjs). Metres assume the phone was held
+ *  1.5 m above the road; crack_share, crack area over surveyed surface, does not depend on that. */
+export interface CrackMetrics {
+  surface_m2: number;
+  crack_m2: number;
+  crack_share: number;
+  length_m: number;
+  /** Mean width of the labelled band (crack area / crack length), wider than the crack's opening. */
+  width_mm: number;
+}
+
+export function getMetrics(n: number): CrackMetrics | undefined {
+  return (measured.sections as Record<string, CrackMetrics>)[String(n)];
+}
 
 export interface Section {
   n: number;

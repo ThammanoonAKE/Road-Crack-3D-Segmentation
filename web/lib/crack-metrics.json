@@ -1,0 +1,62 @@
+{
+ "note": "Made by tools/crack_metrics.mjs. Metres assume the phone was held 1.5 m above the road.",
+ "cell_m": 0.002,
+ "sections": {
+  "1": {
+   "surface_m2": 9.57,
+   "crack_m2": 1.099,
+   "crack_share": 0.1148,
+   "length_m": 39.9,
+   "width_mm": 28
+  },
+  "2": {
+   "surface_m2": 7.39,
+   "crack_m2": 0.423,
+   "crack_share": 0.0573,
+   "length_m": 25.9,
+   "width_mm": 16
+  },
+  "3": {
+   "surface_m2": 6.45,
+   "crack_m2": 0.574,
+   "crack_share": 0.089,
+   "length_m": 35.2,
+   "width_mm": 16
+  },
+  "4": {
+   "surface_m2": 7.65,
+   "crack_m2": 0.74,
+   "crack_share": 0.0968,
+   "length_m": 30.7,
+   "width_mm": 24
+  },
+  "5": {
+   "surface_m2": 3.85,
+   "crack_m2": 0.147,
+   "crack_share": 0.0381,
+   "length_m": 7.3,
+   "width_mm": 20
+  },
+  "6": {
+   "surface_m2": 8.68,
+   "crack_m2": 0.559,
+   "crack_share": 0.0644,
+   "length_m": 20.2,
+   "width_mm": 28
+  },
+  "7": {
+   "surface_m2": 49.04,
+   "crack_m2": 4.533,
+   "crack_share": 0.0924,
+   "length_m": 137.7,
+   "width_mm": 33
+  },
+  "8": {
+   "surface_m2": 4.65,
+   "crack_m2": 0.252,
+   "crack_share": 0.0541,
+   "length_m": 9.9,
+   "width_mm": 25
+  }
+ }
+}

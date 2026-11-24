@@ -28,11 +28,11 @@ The system documents surface cracking on concrete roads in 3D from ordinary hand
 reuses the same crack model for on-device inspection.
 
 - **3D reconstruction.** Each video clip goes through:
-  - Structure-from-Motion (COLMAP);
-  - 3D Gaussian Splatting (gsplat), regularised with a monocular depth prior (Depth Anything 3);
+  - Structure-from-Motion (COLMAP [[4]](#ref-4));
+  - 3D Gaussian Splatting [[2]](#ref-2) (gsplat [[3]](#ref-3)), regularised with a monocular depth prior (Depth Anything 3 [[6]](#ref-6));
   - floater removal;
-  - diffusion-based refinement of views away from the camera path (Difix3D+).
-- **Crack segmentation in 3D.** An in-house DeepCrack model with a ConvNeXt-Small encoder segments every photo
+  - diffusion-based refinement of views away from the camera path (Difix3D+ [[5]](#ref-5)).
+- **Crack segmentation in 3D.** An in-house DeepCrack [[1]](#ref-1) model with a ConvNeXt-Small [[7]](#ref-7) encoder segments every photo
   of the clip. Its per-pixel crack probability is carried onto the Gaussians through the renderer's gradients,
   which gives each Gaussian a crack share; Gaussians above a threshold are labelled as crack.
 - **Visualisation.** The eight reconstructed road sections are published for the browser
@@ -44,6 +44,7 @@ reuses the same crack model for on-device inspection.
 |---|---|
 | Road sections reconstructed and segmented | 8 of 8 (3.6–6.3 million Gaussians each) |
 | Gaussians labelled as crack | 2.3–7.1% per section |
+| Cracks measured on the road plane | about 7–138 m of crack per section, 3.8–11.5% of the surveyed surface |
 | Crack model, TensorRT BF16, 960×544 | 7.8 ms per frame (128 fps), mask IoU 0.995 against PyTorch |
 | Streaming simulation (30 fps camera) | detector at 30 fps, overlay latency 42–47 ms (median) |
 
@@ -88,7 +89,7 @@ More material is in [`samples/`](samples):
 
 | Path | Content |
 |---|---|
-| `web/` | Website and 3D viewer (Next.js 16, three.js, GaussianSplats3D) in a Liquid Glass interface; the eight reconstructions in `public/splats/` (`*.ksplat` via Git LFS, crack labels `*.cracks.bin`); build tools in `web/tools/` (label transfer `crack_labels.py`, `.ksplat` conversion, screenshots) |
+| `web/` | Website and 3D viewer (Next.js 16, three.js, GaussianSplats3D) in a Liquid Glass interface; the eight reconstructions in `public/splats/` (`*.ksplat` via Git LFS, crack labels `*.cracks.bin`); build tools in `web/tools/` (label transfer `crack_labels.py`, crack measurements `crack_metrics.mjs`, `.ksplat` conversion, screenshots) |
 | `gaussian_splatting/` | Clip-to-reconstruction driver (`clips_to_splats.ps1`), gsplat set-up and training, floater removal, web export, orbit rendering |
 | `export/colmap_pipeline/` | Frame extraction (sharpest frame per interval) and COLMAP Structure-from-Motion for video |
 | `depth/` | Depth Anything 3 inference and alignment of the depth maps to the sparse SfM points |
@@ -151,14 +152,39 @@ Views far from the recorded camera path are improved with Difix3D+ in its refere
 4. **Output.** The labels are stored as viewer-order indices in `splats/hole_<n>.cracks.bin`. They are matched
    to the `.ksplat` file by position, because the `.ksplat` writer reorders the Gaussians.
 
-### 5. Visualisation
+### 5. Crack measurements
+
+`web/tools/crack_metrics.mjs` measures each section looking straight down on the road plane, on a 2 mm grid.
+1. **Surface and crack cells.** Every Gaussian adds its opacity to the cells under its footprint on the plane.
+   A cell is road surface where that sum reaches 0.5. It is crack where the Gaussians labelled as crack hold
+   more than half of the sum. Crack regions under 1 cm² are dropped as speckle.
+2. **Length.** The crack cells are thinned to centre lines and each line is measured in strides of 1 cm.
+   Before thinning, gaps up to 3 mm and unlabelled islands under 10 cm² are closed. After it, free-ended
+   branches shorter than 2.5 cm are pruned.
+3. **Width.** The mean width is the crack area divided by the crack length.
+
+<p align="center"><img src="docs/media/crack_map_hole2.jpg" width="80%" alt="Section 2 seen from straight above, with the crack cells in red and their centre lines in black"></p>
+
+Section 2 from straight above, as the tool sees it: crack cells in red, centre lines in black.
+
+**Scale.** A reconstruction from video has no absolute scale. `export_web_splat.py` scales each section so
+that the phone was 1.5 units above the road, and the measurements read one unit as one metre. They are
+therefore approximate:
+- lengths and widths are off by the same factor as the true phone height is off from 1.5 m;
+- areas are off by the square of that factor;
+- the crack share of the surface does not depend on it.
+
+`METRES_PER_UNIT` in the tool corrects a section whose true scale is known from a measurement on site.
+
+### 6. Visualisation
 
 - The reconstructions are converted to `.ksplat` (half precision, base colour only) and shown with
   GaussianSplats3D.
 - The highlight is drawn by tinting the viewer's colour texture of the labelled Gaussians.
 - Supersampling is chosen from the GPU and the screen size.
+- The data panel shows the section's crack measurements.
 
-### 6. Edge inference
+### 7. Edge inference
 
 `edge_ai/edge_crack_video.py` runs the model on each frame, downscaled to 960 px on the long side, and
 stabilises the result over time.
@@ -196,7 +222,7 @@ mask = detector.predict_mask("road.jpg")    # uint8 H×W, 255 = crack (threshold
 
 ### Modifications relative to DeepCrack
 
-The architecture follows DeepCrack [1], with the changes listed below.
+The architecture follows DeepCrack [[1]](#ref-1), with the changes listed below.
 
 Retained from the original design:
 - an encoder–decoder;
@@ -209,7 +235,7 @@ Retained from the original design:
 
 | Aspect | DeepCrack (Zou et al., 2019) | This work |
 |---|---|---|
-| Encoder | SegNet/VGG16 (13 convolutional layers with BN and ReLU), trained from scratch with MSRA initialisation | **ConvNeXt-Small [7], ImageNet-pretrained**, with a LayerNorm on each stage output. On the crack_merged test set it reached F = 0.883, against 0.866 for the best VGG16 variant; ConvNeXt-Base gave no further gain |
+| Encoder | SegNet/VGG16 (13 convolutional layers with BN and ReLU), trained from scratch with MSRA initialisation | **ConvNeXt-Small [[7]](#ref-7), ImageNet-pretrained**, with a LayerNorm on each stage output. On the crack_merged test set it reached F = 0.883, against 0.866 for the best VGG16 variant; ConvNeXt-Base gave no further gain |
 | Decoder | SegNet unpooling with the encoder's max-pooling indices | **U-Net-style**: bilinear upsampling, concatenation with the encoder feature, and two 3×3 convolutions with BN and ReLU. ConvNeXt downsamples with strided convolutions, so it has no pooling indices |
 | Scales | 5 (1 to 1/16) | **6 (1 to 1/32)**. ConvNeXt's first feature map is at 1/4 resolution, too coarse for cracks 1–2 px wide, so a lightweight **detail branch** (3×3 convolutions at full and half resolution) supplies the two finest scales |
 | Loss | Sigmoid cross-entropy on the side and fused outputs, summed over pixels, without class weighting | Cross-entropy averaged per pixel on all outputs, **plus a soft Dice term (weight 1) on the fused output** to handle the ~3% crack pixels without re-weighting the cross-entropy. **Ignore labels** are supported for incompletely annotated images |
@@ -250,6 +276,30 @@ The training code is not part of this repository.
 | 6 | VID_20261102_152326 | 4.25 M | 199 k (4.7%) | 96 MB | Difix3D+, side and top views |
 | 7 | VID_20261102_152410 | 6.28 M | 380 k (6.1%) | 91 MB | Difix3D+, side and top views |
 | 8 | VID_20261102_152618 | 4.17 M | 135 k (3.2%) | 92 MB | Difix3D+, side and top views |
+
+### Crack measurements
+
+Measured on the road plane with `web/tools/crack_metrics.mjs`. Metres assume the phone was held 1.5 m above the
+road (see [Crack measurements](#5-crack-measurements)).
+
+| Section | Surveyed surface | Crack area | Share of surface | Crack length | Mean width |
+|---|---|---|---|---|---|
+| 1 | 9.6 m² | 1.10 m² | 11.5% | 39.9 m | 28 mm |
+| 2 | 7.4 m² | 0.42 m² | 5.7% | 25.9 m | 16 mm |
+| 3 | 6.5 m² | 0.57 m² | 8.9% | 35.2 m | 16 mm |
+| 4 | 7.7 m² | 0.74 m² | 9.7% | 30.7 m | 24 mm |
+| 5 | 3.9 m² | 0.15 m² | 3.8% | 7.3 m | 20 mm |
+| 6 | 8.7 m² | 0.56 m² | 6.4% | 20.2 m | 28 mm |
+| 7 | 49.0 m² | 4.53 m² | 9.2% | 137.7 m | 33 mm |
+| 8 | 4.7 m² | 0.25 m² | 5.4% | 9.9 m | 25 mm |
+
+How to read the figures:
+- **Area and width describe the labelled band.** The detector marks a band around each crack, so the band is
+  wider than the crack's opening.
+- **Sawn joints count where they are labelled as crack** (see [Limitations](#limitations)).
+- **Section 7 is the 85 s clip**, a strip about 19 m long.
+- **Grid size.** With cells of 1 to 4 mm instead of 2 mm, the crack areas of sections 2 and 5 changed by at
+  most 6% and their lengths by at most 9%.
 
 ### Inference performance
 
@@ -375,6 +425,11 @@ CUDA 12.8 and NVIDIA driver 582.16.
        --ply <PLY the .ksplat was built from> --ksplat web\public\splats\hole_<n>.ksplat
    ```
    Rebuilding a `.ksplat` invalidates its `.cracks.bin`.
+5. **Crack measurements.** Needs Node.js only; it rewrites `web/lib/crack-metrics.json`.
+   ```powershell
+   cd web
+   node --max-old-space-size=8000 tools/crack_metrics.mjs
+   ```
 
 ### Edge inference
 
@@ -400,7 +455,10 @@ four adaptations for Model Optimizer 0.48 and TensorRT 11.5 on Windows, all impl
 
 ## Limitations
 
-- **Over-labelling.** Sawn joints and kerb edges are occasionally labelled as crack in the reconstructions.
+- **Scale.** The reconstructions have no absolute scale, so the crack measurements in metres are approximate
+  (see [Crack measurements](#5-crack-measurements)).
+- **Over-labelling.** Sawn joints and kerb edges are occasionally labelled as crack in the reconstructions,
+  and then count in the crack measurements.
   The label transfer uses the earlier detector (`crack_detector`).
 - **Distance.** In walking footage, fine cracks far from the camera are sometimes missed. The detectors were
   trained mainly on close-range and line-scan imagery.
@@ -410,7 +468,7 @@ four adaptations for Model Optimizer 0.48 and TensorRT 11.5 on Windows, all impl
 ## Privacy
 
 Vehicles in the sample videos are blurred with `tools/blur_vehicles.py`, so that number plates cannot be read.
-- Vehicles are found with Mask2Former [8], using COCO instance segmentation, on every third frame.
+- Vehicles are found with Mask2Former [[8]](#ref-8), using COCO instance segmentation, on every third frame.
 - Each frame is blurred where the neighbouring detections found a vehicle.
 - The text overlay band at the top of the detection videos shows no imagery. It was copied back from the
   unblurred render where a blurred vehicle near the top edge had bled into it. `tools/blur_vehicles.py
@@ -426,24 +484,36 @@ were trained on public crack datasets. Check those terms before any commercial u
 
 | Component | Licence | Notes |
 |---|---|---|
-| Next.js, React, GaussianSplats3D, three.js | MIT | Installed with `npm ci`; not redistributed |
-| gsplat [3] | Apache-2.0 | Cloned by `setup_gsplat.ps1`. `patch_gsplat_depth_prior.py` modifies its example trainer |
-| COLMAP [4] | BSD | Not redistributed |
-| Depth Anything 3 [6] | See the model card | Weights are downloaded at run time. Check the terms of the GIANT model before commercial use |
-| **Difix3D+ [5]** (NVIDIA) | **NVIDIA licence, non-commercial use** | No Difix3D+ code or weights are included. **The reconstructions in `web/public/splats/` were refined with Difix3D+**; check NVIDIA's terms before any commercial use |
-| Mask2Former model (`facebook/mask2former-swin-tiny-coco-instance`) | See the model card | Used only to anonymise the sample videos |
+| [Next.js](https://nextjs.org), [React](https://react.dev), [GaussianSplats3D](https://github.com/mkkellogg/GaussianSplats3D), [three.js](https://threejs.org) | MIT | Installed with `npm ci`; not redistributed |
+| [gsplat](https://github.com/nerfstudio-project/gsplat) [[3]](#ref-3) | Apache-2.0 | Cloned by `setup_gsplat.ps1`. `patch_gsplat_depth_prior.py` modifies its example trainer |
+| [COLMAP](https://github.com/colmap/colmap) [[4]](#ref-4) | BSD | Not redistributed |
+| [Depth Anything 3](https://github.com/ByteDance-Seed/Depth-Anything-3) [[6]](#ref-6) | See the [model card](https://huggingface.co/depth-anything/DA3-GIANT-1.1) | Weights are downloaded at run time. Check the terms of the GIANT model before commercial use |
+| **[Difix3D+](https://github.com/nv-tlabs/Difix3D) [[5]](#ref-5)** (NVIDIA) | **NVIDIA licence, non-commercial use** (see the [model card](https://huggingface.co/nvidia/difix_ref)) | No Difix3D+ code or weights are included. **The reconstructions in `web/public/splats/` were refined with Difix3D+**; check NVIDIA's terms before any commercial use |
+| Mask2Former [[8]](#ref-8) model (`facebook/mask2former-swin-tiny-coco-instance`) | See the [model card](https://huggingface.co/facebook/mask2former-swin-tiny-coco-instance) | Used only to anonymise the sample videos |
 | Public crack datasets | Individual terms | Some are restricted to research use. Check them before any commercial use of the weights |
 
 ## References
 
-1. Q. Zou, Z. Zhang, Q. Li, X. Qi, Q. Wang, S. Wang. *DeepCrack: Learning Hierarchical Convolutional Features
-   for Crack Detection.* IEEE Transactions on Image Processing, 28(3), 2019.
-2. B. Kerbl, G. Kopanas, T. Leimkühler, G. Drettakis. *3D Gaussian Splatting for Real-Time Radiance Field
-   Rendering.* ACM Transactions on Graphics (SIGGRAPH), 2023.
-3. V. Ye et al. *gsplat: An Open-Source Library for Gaussian Splatting.* 2024.
-4. J. L. Schönberger, J.-M. Frahm. *Structure-from-Motion Revisited.* CVPR, 2016.
-5. J. Z. Wu et al. *Difix3D+: Improving 3D Reconstructions with Single-Step Diffusion Models.* CVPR, 2025.
-6. Depth Anything 3. ByteDance Seed, 2025.
-7. Z. Liu, H. Mao, C.-Y. Wu, C. Feichtenhofer, T. Darrell, S. Xie. *A ConvNet for the 2020s.* CVPR, 2022.
-8. B. Cheng, I. Misra, A. G. Schwing, A. Kirillov, R. Girdhar. *Masked-attention Mask Transformer for
-   Universal Image Segmentation.* CVPR, 2022.
+1. <a id="ref-1"></a>Q. Zou, Z. Zhang, Q. Li, X. Qi, Q. Wang, S. Wang.
+   [*DeepCrack: Learning Hierarchical Convolutional Features for Crack Detection.*](https://doi.org/10.1109/TIP.2018.2878966)
+   IEEE Transactions on Image Processing, 28(3), 2019.
+2. <a id="ref-2"></a>B. Kerbl, G. Kopanas, T. Leimkühler, G. Drettakis.
+   [*3D Gaussian Splatting for Real-Time Radiance Field Rendering.*](https://doi.org/10.1145/3592433)
+   ACM Transactions on Graphics (SIGGRAPH), 42(4), 2023.
+3. <a id="ref-3"></a>V. Ye et al.
+   [*gsplat: An Open-Source Library for Gaussian Splatting.*](https://arxiv.org/abs/2409.06765) 2024.
+   Code: [nerfstudio-project/gsplat](https://github.com/nerfstudio-project/gsplat).
+4. <a id="ref-4"></a>J. L. Schönberger, J.-M. Frahm.
+   [*Structure-from-Motion Revisited.*](https://openaccess.thecvf.com/content_cvpr_2016/html/Schonberger_Structure-From-Motion_Revisited_CVPR_2016_paper.html)
+   CVPR, 2016. Code: [colmap/colmap](https://github.com/colmap/colmap).
+5. <a id="ref-5"></a>J. Z. Wu et al.
+   [*Difix3D+: Improving 3D Reconstructions with Single-Step Diffusion Models.*](https://arxiv.org/abs/2503.01774)
+   CVPR, 2025. Code: [nv-tlabs/Difix3D](https://github.com/nv-tlabs/Difix3D).
+6. <a id="ref-6"></a>H. Lin et al.
+   [*Depth Anything 3: Recovering the Visual Space from Any Views.*](https://arxiv.org/abs/2511.10647)
+   ByteDance Seed, 2025. Code: [ByteDance-Seed/Depth-Anything-3](https://github.com/ByteDance-Seed/Depth-Anything-3).
+7. <a id="ref-7"></a>Z. Liu, H. Mao, C.-Y. Wu, C. Feichtenhofer, T. Darrell, S. Xie.
+   [*A ConvNet for the 2020s.*](https://arxiv.org/abs/2201.03545) CVPR, 2022.
+8. <a id="ref-8"></a>B. Cheng, I. Misra, A. G. Schwing, A. Kirillov, R. Girdhar.
+   [*Masked-attention Mask Transformer for Universal Image Segmentation.*](https://arxiv.org/abs/2112.01527)
+   CVPR, 2022.

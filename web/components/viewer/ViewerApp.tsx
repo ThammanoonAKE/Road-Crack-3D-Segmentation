@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, Collapse, Expand, Mark, Reset, Rotate, Sliders } from "../Icons";
 import { LangSwitch } from "../LangSwitch";
 import { useLang } from "../LangProvider";
-import { MAX_CRACK_SHARE, SECTIONS, getSection, megabytes, pad2, share } from "@/lib/sections";
+import { MAX_CRACK_SHARE, SECTIONS, getMetrics, getSection, megabytes, pad2, share } from "@/lib/sections";
 import { SplatController, hasWebGL2, type Stage } from "@/lib/splat-controller";
 import ui from "../ui.module.css";
 import styles from "./ViewerApp.module.css";
@@ -15,6 +15,7 @@ type Status = Stage | "error" | "nowebgl";
 
 export function ViewerApp({ n }: { n: number }) {
   const section = getSection(n)!;
+  const metrics = getMetrics(n);
   const { t } = useLang();
   const v = t.viewer;
   const router = useRouter();
@@ -185,6 +186,32 @@ export function ViewerApp({ n }: { n: number }) {
             </dd>
           </div>
         </dl>
+
+        {metrics && (
+          <div className={styles.measure}>
+            <dl className={styles.group}>
+              <div>
+                <dt>{v.surfaceArea}</dt>
+                <dd className="mono">{metrics.surface_m2.toFixed(1)} m²</dd>
+              </div>
+              <div>
+                <dt>{v.crackArea}</dt>
+                <dd className="mono">
+                  {metrics.crack_m2.toFixed(2)} m² · {(metrics.crack_share * 100).toFixed(1)}%
+                </dd>
+              </div>
+              <div>
+                <dt>{v.crackLength}</dt>
+                <dd className="mono">{metrics.length_m.toFixed(1)} m</dd>
+              </div>
+              <div>
+                <dt>{v.crackWidth}</dt>
+                <dd className="mono">{metrics.width_mm} mm</dd>
+              </div>
+            </dl>
+            <p className={styles.note}>{v.measureNote}</p>
+          </div>
+        )}
 
         <div className={styles.group}>
           <button

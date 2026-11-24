@@ -177,6 +177,19 @@
   font-size: var(--t-sub);
 }
 
+/* the measured figures, with the footnote that qualifies them */
+.measure {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.note {
+  padding: 0 var(--s-4);
+  font-size: var(--t-caption);
+  line-height: 1.45;
+  color: var(--label-2);
+}
+
 .meter {
   position: relative;
   width: 54px;
