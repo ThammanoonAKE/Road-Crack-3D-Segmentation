@@ -89,7 +89,7 @@ More material is in [`samples/`](samples):
 
 | Path | Content |
 |---|---|
-| `web/` | Website and 3D viewer (Next.js 16, three.js, GaussianSplats3D) in a Liquid Glass interface; the eight reconstructions in `public/splats/` (`*.ksplat` via Git LFS, crack labels `*.cracks.bin`); build tools in `web/tools/` (label transfer `crack_labels.py`, crack measurements `crack_metrics.mjs`, `.ksplat` conversion, screenshots) |
+| `web/` | Website and 3D viewer (Next.js 16, three.js, GaussianSplats3D, react-three-fiber) in a Liquid Glass interface; the eight reconstructions in `public/splats/` (`*.ksplat` via Git LFS, crack labels `*.cracks.bin`); build tools in `web/tools/` (label transfer `crack_labels.py`, crack measurements `crack_metrics.mjs`, the home page's point cloud `hero_points.mjs`, `.ksplat` conversion, screenshots) |
 | `gaussian_splatting/` | Clip-to-reconstruction driver (`clips_to_splats.ps1`), gsplat set-up and training, floater removal, web export, orbit rendering |
 | `export/colmap_pipeline/` | Frame extraction (sharpest frame per interval) and COLMAP Structure-from-Motion for video |
 | `depth/` | Depth Anything 3 inference and alignment of the depth maps to the sparse SfM points |
@@ -183,6 +183,9 @@ therefore approximate:
 - The highlight is drawn by tinting the viewer's colour texture of the labelled Gaussians.
 - Supersampling is chosen from the GPU and the screen size.
 - The data panel shows the section's crack measurements.
+- The viewer opens with the camera gliding down to its opening pose.
+- The home page draws section 2 as a live point cloud of about 180,000 points, with react-three-fiber.
+  `web/tools/hero_points.mjs` reduces the section's Gaussians to those points.
 
 ### 7. Edge inference
 
@@ -345,13 +348,15 @@ npm start                    # http://localhost:3000 ; viewer at /viewer/1 … /
 
 Use `npm run dev` for development.
 
-The site is built with Next.js 16 (App Router, Cache Components) and three.js through GaussianSplats3D 0.4.7.
+The site is built with Next.js 16 (App Router, Cache Components) and three.js: GaussianSplats3D 0.4.7 for the
+viewer, react-three-fiber and drei for the home page's point cloud.
 Its interface follows Apple's Liquid Glass design language:
 - glass materials with specular rims;
 - edge refraction through an SVG displacement filter (Chromium; other browsers fall back to blur);
 - capsule controls and a floating toolbar.
 
 It honours *Reduce transparency*, *Increase contrast* and *Reduce motion*, and offers Thai and English.
+Under *Reduce motion* the home page shows a photograph instead of the point cloud.
 `web/DESIGN.md` describes the tokens and components.
 
 Viewer controls:
@@ -370,12 +375,18 @@ Viewer controls:
 
 The Next.js app in `web/` deploys to Vercel as a standard project; set its *Root Directory* to `web`.
 
-The eight reconstructions are 80–110 MB each, about 750 MB in total. They are better served from object
-storage or a CDN than from the deployment itself:
+The eight reconstructions are 80–110 MB each, about 750 MB in total, so production builds load them from
+object storage instead of the deployment:
+- `web/.env.production` sets `NEXT_PUBLIC_SPLAT_BASE_URL` to a public Cloudflare R2 bucket that holds a copy of
+  `web/public/splats/`. The bucket allows cross-origin `GET` requests.
+- `web/.vercelignore` keeps `public/splats/` out of the deployment.
+- `npm run dev` does not read `.env.production` and uses the local files.
+
+To serve them from your own storage:
 1. Upload `web/public/splats/` to a bucket (for example Cloudflare R2, Amazon S3 or Vercel Blob) that allows
    cross-origin `GET` requests from the site.
-2. Set `NEXT_PUBLIC_SPLAT_BASE_URL` to the folder's public URL.
-3. Exclude `web/public/splats/` from the deployment.
+2. Set `NEXT_PUBLIC_SPLAT_BASE_URL` to the folder's public URL, in `web/.env.production` or in the host's
+   environment variables.
 
 Set `NEXT_PUBLIC_SITE_URL` (absolute Open Graph URLs) and, optionally, `NEXT_PUBLIC_REPO_URL` (source link in
 the footer).
@@ -429,6 +440,11 @@ CUDA 12.8 and NVIDIA driver 582.16.
    ```powershell
    cd web
    node --max-old-space-size=8000 tools/crack_metrics.mjs
+   ```
+6. **Home page point cloud.** Needs Node.js only; it rewrites `web/public/media/hero_points.bin` from section 2.
+   ```powershell
+   cd web
+   node --max-old-space-size=8000 tools/hero_points.mjs
    ```
 
 ### Edge inference
@@ -484,7 +500,7 @@ were trained on public crack datasets. Check those terms before any commercial u
 
 | Component | Licence | Notes |
 |---|---|---|
-| [Next.js](https://nextjs.org), [React](https://react.dev), [GaussianSplats3D](https://github.com/mkkellogg/GaussianSplats3D), [three.js](https://threejs.org) | MIT | Installed with `npm ci`; not redistributed |
+| [Next.js](https://nextjs.org), [React](https://react.dev), [GaussianSplats3D](https://github.com/mkkellogg/GaussianSplats3D), [three.js](https://threejs.org), [react-three-fiber](https://github.com/pmndrs/react-three-fiber), [drei](https://github.com/pmndrs/drei) | MIT | Installed with `npm ci`; not redistributed |
 | [gsplat](https://github.com/nerfstudio-project/gsplat) [[3]](#ref-3) | Apache-2.0 | Cloned by `setup_gsplat.ps1`. `patch_gsplat_depth_prior.py` modifies its example trainer |
 | [COLMAP](https://github.com/colmap/colmap) [[4]](#ref-4) | BSD | Not redistributed |
 | [Depth Anything 3](https://github.com/ByteDance-Seed/Depth-Anything-3) [[6]](#ref-6) | See the [model card](https://huggingface.co/depth-anything/DA3-GIANT-1.1) | Weights are downloaded at run time. Check the terms of the GIANT model before commercial use |

@@ -33,11 +33,41 @@
   flex-direction: column;
   padding: 8px;
   border-radius: var(--r-xl) !important;
+  /* --tilt-x / --tilt-y follow the mouse (SectionGrid.tsx); the spring makes the card trail it and settle back */
+  transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(var(--lift, 0px));
   transition: transform var(--dur) var(--spring);
 }
 
 .card:hover {
-  transform: translateY(-4px);
+  --lift: -4px;
+}
+
+/* a specular highlight under the mouse */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  corner-shape: inherit;
+  background: radial-gradient(
+    380px circle at var(--glare-x, 50%) var(--glare-y, 0%),
+    rgb(255 255 255 / 0.13),
+    rgb(255 255 255 / 0) 62%
+  );
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease-out);
+  pointer-events: none;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transform: none;
+  }
 }
 
 .media {

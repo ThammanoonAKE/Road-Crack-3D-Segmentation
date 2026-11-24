@@ -10,7 +10,7 @@ export function ModelSection() {
   return (
     <section id="model" className={ui.section} aria-labelledby="model-title">
       <div className={ui.wrap}>
-        <div className={ui.head}>
+        <div className={`${ui.head} rise`}>
           <p className={ui.kicker}>{m.kicker}</p>
           <h2 id="model-title" className={ui.title}>
             {m.title}
@@ -18,7 +18,7 @@ export function ModelSection() {
           <p className={ui.lead}>{m.lead}</p>
         </div>
 
-        <div className={`${styles.panel} lg-thick`}>
+        <div className={`${styles.panel} lg-thick rise`}>
           <div className={styles.scroller} tabIndex={0} role="region" aria-labelledby="model-title">
             <table className={styles.table}>
               <thead>
@@ -45,7 +45,7 @@ export function ModelSection() {
 
         <dl className={styles.metrics}>
           {m.metrics.map((x) => (
-            <div key={x.value} className="lg">
+            <div key={x.value} className="lg rise">
               <dt>{x.label}</dt>
               <dd className="mono">{x.value}</dd>
             </div>

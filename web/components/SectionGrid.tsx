@@ -2,12 +2,30 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type PointerEvent } from "react";
 import { ArrowRight } from "./Icons";
 import { useLang } from "./LangProvider";
 import { MAX_CRACK_SHARE, SECTIONS, megabytes, pad2, share } from "@/lib/sections";
 import ui from "./ui.module.css";
 import styles from "./SectionGrid.module.css";
+
+/** A card leans towards the mouse and a highlight follows it; ui: SectionGrid.module.css `.card`. */
+function lean(e: PointerEvent<HTMLLIElement>) {
+  if (e.pointerType !== "mouse") return;
+  const card = e.currentTarget;
+  const box = card.getBoundingClientRect();
+  const x = (e.clientX - box.left) / box.width;
+  const y = (e.clientY - box.top) / box.height;
+  card.style.setProperty("--tilt-x", `${((0.5 - y) * 7).toFixed(2)}deg`);
+  card.style.setProperty("--tilt-y", `${((x - 0.5) * 9).toFixed(2)}deg`);
+  card.style.setProperty("--glare-x", `${(x * 100).toFixed(1)}%`);
+  card.style.setProperty("--glare-y", `${(y * 100).toFixed(1)}%`);
+}
+
+function settle(e: PointerEvent<HTMLLIElement>) {
+  e.currentTarget.style.removeProperty("--tilt-x");
+  e.currentTarget.style.removeProperty("--tilt-y");
+}
 
 export function SectionGrid() {
   const { t } = useLang();
@@ -17,7 +35,7 @@ export function SectionGrid() {
     <section id="sections" className={ui.section} aria-labelledby="sections-title">
       <div className={ui.wrap}>
         <div className={styles.top}>
-          <div className={ui.head}>
+          <div className={`${ui.head} rise`}>
             <p className={ui.kicker}>{t.sections.kicker}</p>
             <h2 id="sections-title" className={ui.title}>
               {t.sections.title}
@@ -40,7 +58,7 @@ export function SectionGrid() {
           {SECTIONS.map((s) => {
             const pct = share(s) * 100;
             return (
-              <li key={s.n} className={`${styles.card} lg`}>
+              <li key={s.n} className={`${styles.card} lg rise`} onPointerMove={lean} onPointerLeave={settle}>
                 <div className={styles.media}>
                   <Image
                     src={`/media/sections/hole_${s.n}_off.webp`}

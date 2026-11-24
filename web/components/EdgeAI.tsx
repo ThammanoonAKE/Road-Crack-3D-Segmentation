@@ -41,7 +41,7 @@ export function EdgeAI() {
   return (
     <section id="edge" className={ui.section} aria-labelledby="edge-title">
       <div className={ui.wrap}>
-        <div className={ui.head}>
+        <div className={`${ui.head} rise`}>
           <p className={ui.kicker}>{e.kicker}</p>
           <h2 id="edge-title" className={ui.title}>
             {e.title}
@@ -50,7 +50,7 @@ export function EdgeAI() {
         </div>
 
         <div className={styles.grid}>
-          <figure className={`${styles.player} lg`}>
+          <figure className={`${styles.player} lg rise`}>
             <div className={styles.screen}>
               <video
                 ref={video}
@@ -76,7 +76,7 @@ export function EdgeAI() {
             <figcaption className={styles.caption}>{e.videoCaption}</figcaption>
           </figure>
 
-          <div className={`${styles.stats} lg-thick`}>
+          <div className={`${styles.stats} lg-thick rise`}>
             <table className={styles.table}>
               <caption className={styles.tableCaption}>{e.tableCaption}</caption>
               <thead>

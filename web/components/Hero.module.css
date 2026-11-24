@@ -23,6 +23,7 @@
 
 .img {
   object-fit: cover;
+  transition: opacity var(--dur-slow) var(--ease-out);
 }
 
 .on {
@@ -32,6 +33,11 @@
 
 .stage[data-mode="highlight"] .on {
   opacity: 1;
+}
+
+/* once the live point cloud is drawn it replaces the photograph */
+.stage[data-cloud="true"] .img {
+  opacity: 0;
 }
 
 /* legibility: darken toward the bottom left, where the card sits */

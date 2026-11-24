@@ -25,6 +25,7 @@ const th = {
     viewsLabel: "รูปแบบการแสดงภาพ",
     chip: (m: string, pct: string) => `${m} ล้านเกาเซียน · รอยแตก ${pct}%`,
     caption: "หลุม 2 จากมุมเริ่มต้นของตัวแสดงผล เส้นรอยแตกคือเส้นกลางของบริเวณที่โมเดลระบุ คำนวณจากแบบจำลองจริง",
+    captionCloud: "หลุม 2 แสดงเป็นจุดราว 180,000 จุด ย่อจากเกาเซียนของแบบจำลองจริง สีแดงคือบริเวณที่โมเดลระบุว่าเป็นรอยแตก",
   },
   figures: [
     { value: "8 / 8", label: "หลุมที่สร้างแบบจำลองและระบุรอยแตกแล้ว" },
@@ -199,6 +200,7 @@ const en: Copy = {
     viewsLabel: "Image mode",
     chip: (m: string, pct: string) => `${m} M Gaussians · ${pct}% crack`,
     caption: "Section 2 from the viewer's opening pose. The trace is the centre line of the labelled cracks, computed from the reconstruction itself.",
+    captionCloud: "Section 2 as about 180,000 points, reduced from the reconstruction's own Gaussians. Red marks the areas the model labelled as crack.",
   },
   figures: [
     { value: "8 / 8", label: "sections reconstructed and labelled" },

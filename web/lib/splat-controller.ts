@@ -110,6 +110,7 @@ export class SplatController {
     this.info.count = this.viewer.splatMesh.getSplatCount();
     await this.loadCracks(n);
     if (this.disposed) return;
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) this.flyIn();
     onStage("ready", 100);
   }
 
@@ -180,6 +181,12 @@ export class SplatController {
       t.z + r * Math.sin(phi) * Math.cos(theta),
     );
     v.controls.update();
+  }
+
+  /** Start a quarter-turn round, higher and farther out, and glide down to the opening pose. */
+  flyIn(ms = 1800) {
+    this.nudge(55, 22, 1.6);
+    this.resetView(ms);
   }
 
   /** Ease the camera back to the opening pose over `ms`. */

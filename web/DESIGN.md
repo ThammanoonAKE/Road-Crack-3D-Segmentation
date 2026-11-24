@@ -15,7 +15,7 @@ Crack red is iOS *systemRed*, so the brand accent and the data colour are the sa
 | Fills | `--fill`, `--fill-2`, `--separator`, `--separator-strong` | iOS dark system fills and separators |
 | Type | `--font-sans`, `--font-display`, `--font-mono`; sizes from `--t-caption` up to `--t-large` | See below |
 | Shape | `--r-sm` 12, `--r-md` 20, `--r-lg` 28, `--r-xl` 36, `--r-capsule` | Every glass shape also sets `corner-shape: squircle` for continuous corners where the browser supports it |
-| Motion | `--spring` (`cubic-bezier(0.32, 0.72, 0, 1)`), `--dur-fast` 160 ms, `--dur` 320 ms, `--dur-slow` 700 ms | — |
+| Motion | `--spring` (`cubic-bezier(0.32, 0.72, 0, 1)`), `--dur-fast` 160 ms, `--dur` 320 ms, `--dur-slow` 700 ms | See [Motion](#motion) |
 
 **Type families:**
 - `--font-sans` and `--font-display` use SF on Apple devices, with IBM Plex Sans Thai for Thai and on other
@@ -59,9 +59,28 @@ Each material combines:
 | iOS switch | `ui.switch` | 51 × 31 px; red when on; the containing button has `role="switch"` |
 | Capsule buttons | `ui.primary`, `ui.secondary` | Primary is tinted red glass; secondary is clear glass; both are 48 px high |
 | Before/after slider | `CompareSlider` | `role="slider"`; arrow keys (Shift for ×5), Home/End; the knob is a glass lens |
-| Crack trace | `CrackTrace` | Centre lines traced from section 2; they draw outwards from the centre; static under reduced motion |
+| Live point cloud | `HeroCloud` | Section 2 as about 180,000 points (react-three-fiber, drei); replaces the hero photograph once drawn |
+| Crack trace | `CrackTrace` | Centre lines traced from section 2, drawn over the hero photograph when the point cloud is not shown; static under reduced motion |
 | Inset grouped list | `Method`, viewer sheet | iOS Settings-style rows with inset hairline separators |
 | Floating toolbar | `viewer/ViewerApp` | Tab-bar capsule: highlight (labelled), auto-rotate, reset, full screen, panel |
+
+## Motion
+
+Motion shows the data or answers the pointer. Nothing moves only for decoration.
+
+| Where | What moves | How |
+|---|---|---|
+| Hero | The road condenses out of dust, a scan line crosses it, the camera drifts and leans towards the mouse; in *Crack trace* the red spreads along the cracks from the middle | `HeroCloud`: one shader on a three.js point cloud, drei `Sparkles` for the dust |
+| Sections of the home page | Headings, cards and panels fade up as they scroll into view; the items of a row travel different distances, so they arrive one after another | `.rise` in `globals.css`: a CSS scroll-driven animation |
+| Section cards | A card leans towards the mouse and a highlight follows it | `SectionGrid`: CSS variables set on `pointermove` |
+| Viewer | The camera glides down to its opening pose when a section has loaded | `SplatController.flyIn` |
+
+**Fallbacks:**
+- Under `prefers-reduced-motion: reduce` the hero keeps its photograph, `.rise` elements stay in place, cards
+  do not lean and the viewer opens on its pose.
+- The point cloud is also skipped when the browser asks to save data or has no WebGL.
+- Browsers without scroll-driven animations show `.rise` elements in place.
+- The hero stops drawing while it is scrolled out of view, and drops to 1× pixel density if frames slow down.
 
 ## Rules
 

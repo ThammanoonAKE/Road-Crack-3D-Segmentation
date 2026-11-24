@@ -1,0 +1,2 @@
+# The reconstructions are served from object storage (.env.production), not from the deployment.
+public/splats

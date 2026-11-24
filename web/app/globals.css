@@ -263,6 +263,41 @@ kbd {
   pointer-events: none;
 }
 
+/* ---------- entrances ---------- */
+/* .rise: an element fades up into place as it scrolls into view, tied to the scroll position itself.
+   --rise-from sets how far it travels, so the items of a row can arrive one after another.
+   Browsers without scroll-driven animations, and visitors who asked for less motion, see it in place. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 var(--rise-from, 44px);
+    scale: 0.97;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .rise {
+      animation: rise linear both;
+      animation-timeline: view();
+      /* done once the element is wholly in view, or after 320 px for one taller than the screen */
+      animation-range: entry 0% entry min(100%, 320px);
+    }
+
+    .rise:nth-child(4n + 2) {
+      --rise-from: 72px;
+    }
+
+    .rise:nth-child(4n + 3) {
+      --rise-from: 100px;
+    }
+
+    .rise:nth-child(4n + 4) {
+      --rise-from: 128px;
+    }
+  }
+}
+
 /* Settings > Accessibility > Reduce Transparency, and Increase Contrast */
 @media (prefers-reduced-transparency: reduce) {
   .lg,

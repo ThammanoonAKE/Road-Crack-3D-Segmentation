@@ -14,7 +14,7 @@ export function Method() {
     <section id="method" className={ui.section} aria-labelledby="method-title">
       <div className={`${ui.wrap} ${styles.layout}`}>
         <div className={styles.aside}>
-          <div className={ui.head}>
+          <div className={`${ui.head} rise`}>
             <p className={ui.kicker}>{m.kicker}</p>
             <h2 id="method-title" className={ui.title}>
               {m.title}
@@ -23,7 +23,7 @@ export function Method() {
           </div>
         </div>
 
-        <ol className={`${styles.list} lg-thick`}>
+        <ol className={`${styles.list} lg-thick rise`}>
           {m.steps.map((step, i) => (
             <li key={step.code} className={styles.row}>
               <span className={`${styles.icon} mono`} aria-hidden>

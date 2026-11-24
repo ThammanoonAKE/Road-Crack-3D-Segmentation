@@ -1,8 +1,9 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { Component, useState, useSyncExternalStore, type ReactNode } from "react";
 import { CrackTrace } from "./CrackTrace";
 import { ArrowRight, Cube } from "./Icons";
 import { useLang } from "./LangProvider";
@@ -14,10 +15,41 @@ import styles from "./Hero.module.css";
 type Mode = "model" | "trace" | "highlight";
 const HERO = getSection(2)!;
 
+// three.js and the point cloud load after the page is interactive, and only in the browser
+const HeroCloud = dynamic(() => import("./HeroCloud"), { ssr: false });
+
+const STILL = "(prefers-reduced-motion: reduce)";
+const watchMotion = (changed: () => void) => {
+  const query = window.matchMedia(STILL);
+  query.addEventListener("change", changed);
+  return () => query.removeEventListener("change", changed);
+};
+/** The live point cloud is for visitors who have not asked for less motion or less data. */
+const wantsCloud = () =>
+  !window.matchMedia(STILL).matches && !(navigator as { connection?: { saveData?: boolean } }).connection?.saveData;
+
+/** Without WebGL the canvas throws: the hero then stays on its photograph. */
+class CloudBoundary extends Component<{ children: ReactNode; onError: () => void }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch() {
+    this.props.onError();
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
+
 export function Hero() {
   const { t } = useLang();
   const [mode, setMode] = useState<Mode>("trace");
   const [run, setRun] = useState(0);
+  const wanted = useSyncExternalStore(watchMotion, wantsCloud, () => false);
+  const [failed, setFailed] = useState(false);
+  const [drawn, setDrawn] = useState(false);
+  const live = wanted && !failed; // the cloud is mounted, though perhaps not drawn yet
 
   const choose = (next: Mode) => {
     if (next === "trace") setRun((r) => r + 1); // replay the propagation each time the trace is shown
@@ -26,11 +58,16 @@ export function Hero() {
 
   return (
     <section className={styles.hero} aria-labelledby="hero-title">
-      <figure className={styles.stage} data-mode={mode}>
+      <figure className={styles.stage} data-mode={mode} data-cloud={live && drawn}>
         <div className={styles.photo}>
           <Image src="/media/sections/hole_2_off.webp" alt="" fill preload sizes="100vw" className={styles.img} />
           <Image src="/media/sections/hole_2_on.webp" alt="" fill sizes="100vw" className={`${styles.img} ${styles.on}`} />
-          {mode === "trace" && <CrackTrace run={run} cover />}
+          {mode === "trace" && !live && <CrackTrace run={run} cover />}
+          {live && (
+            <CloudBoundary onError={() => setFailed(true)}>
+              <HeroCloud mode={mode} run={run} onReady={() => setDrawn(true)} />
+            </CloudBoundary>
+          )}
           <div className={styles.shade} aria-hidden />
         </div>
 
@@ -67,7 +104,9 @@ export function Hero() {
               onChange={choose}
               options={(["model", "trace", "highlight"] as const).map((m) => ({ value: m, label: t.hero.views[m] }))}
             />
-            <figcaption className={`${styles.caption} lg-clear`}>{t.hero.caption}</figcaption>
+            <figcaption className={`${styles.caption} lg-clear`}>
+              {live && drawn ? t.hero.captionCloud : t.hero.caption}
+            </figcaption>
           </div>
         </div>
       </figure>
@@ -75,7 +114,7 @@ export function Hero() {
       <div className={styles.widgetsWrap}>
         <dl className={styles.widgets}>
           {t.figures.map((f) => (
-            <div key={f.value} className={`${styles.widget} lg`}>
+            <div key={f.value} className={`${styles.widget} lg rise`}>
               <dt className={styles.widgetLabel}>{f.label}</dt>
               <dd className={`${styles.widgetValue} mono`}>{f.value}</dd>
             </div>
