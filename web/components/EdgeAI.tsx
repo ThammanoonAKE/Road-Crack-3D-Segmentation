@@ -61,7 +61,8 @@ export function EdgeAI() {
               <video
                 ref={video}
                 className={styles.video}
-                src="/media/video/stream_walk.mp4"
+                // ?v=2: browsers that fetched this address while it still served a Git LFS pointer keep that copy for a day
+                src="/media/video/stream_walk.mp4?v=2"
                 poster="/media/video/stream_walk.jpg"
                 muted
                 loop
