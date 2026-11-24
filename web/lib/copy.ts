@@ -45,7 +45,8 @@ const th = {
   method: {
     kicker: "02 — วิธีการ",
     title: "จากวิดีโอสู่แบบจำลองที่ระบุรอยแตก",
-    lead: "ขั้นตอนทั้งหมดทำงานบนเครื่องเดียว (RTX PRO 4000 Blackwell) และสคริปต์ทุกขั้นอยู่ในรีโพสิทอรี",
+    lead: "ขั้นตอนทั้งหมดทำงานบนเครื่องเดียว (RTX PRO 4000 Blackwell) และสคริปต์ทุกขั้นอยู่บน GitHub",
+    repo: "ดูโค้ดบน GitHub",
     steps: [
       {
         code: "CAPTURE",
@@ -215,7 +216,8 @@ const en: Copy = {
   method: {
     kicker: "02 — Method",
     title: "From video to a labelled reconstruction",
-    lead: "Every stage ran on one workstation (RTX PRO 4000 Blackwell), and the scripts for each stage are in the repository.",
+    lead: "Every stage ran on one workstation (RTX PRO 4000 Blackwell), and the scripts for each stage are on GitHub.",
+    repo: "View the code on GitHub",
     steps: [
       {
         code: "CAPTURE",

@@ -393,8 +393,9 @@ To serve them from your own storage:
 2. Set `NEXT_PUBLIC_SPLAT_BASE_URL` to the folder's public URL, in `web/.env.production` or in the host's
    environment variables.
 
-`web/.env.production` also sets `NEXT_PUBLIC_SITE_URL` (absolute Open Graph URLs) to the demo's address; change
-it for another deployment. Optionally set `NEXT_PUBLIC_REPO_URL` (source link in the footer).
+`web/.env.production` also sets `NEXT_PUBLIC_SITE_URL` (absolute Open Graph URLs) to the demo's address and
+`NEXT_PUBLIC_REPO_URL` (the GitHub links in the method section and the footer) to this repository; change both
+for another deployment.
 
 ### Reproducing the pipeline
 

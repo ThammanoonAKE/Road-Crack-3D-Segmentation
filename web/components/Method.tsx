@@ -2,9 +2,13 @@
 
 import Image from "next/image";
 import { CompareSlider } from "./CompareSlider";
+import { External } from "./Icons";
 import { useLang } from "./LangProvider";
 import ui from "./ui.module.css";
 import styles from "./Method.module.css";
+
+// the public repository, where the scripts for every stage are (also linked from the footer)
+const REPO = process.env.NEXT_PUBLIC_REPO_URL;
 
 export function Method() {
   const { t } = useLang();
@@ -20,6 +24,12 @@ export function Method() {
               {m.title}
             </h2>
             <p className={ui.lead}>{m.lead}</p>
+            {REPO && (
+              <a href={REPO} className={`${ui.secondary} lg-clear ${styles.repo}`} target="_blank" rel="noreferrer">
+                {m.repo}
+                <External />
+              </a>
+            )}
           </div>
         </div>
 

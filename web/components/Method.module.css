@@ -9,6 +9,11 @@
   top: 112px;
 }
 
+.repo {
+  justify-self: start;
+  margin-top: var(--s-2);
+}
+
 /* iOS inset grouped list */
 .list {
   margin: 0;
