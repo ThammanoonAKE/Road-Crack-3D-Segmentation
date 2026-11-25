@@ -5,6 +5,8 @@
 
 .scroller {
   overflow-x: auto;
+  /* the rows rise into place as they enter: without this, that travel shows a vertical scrollbar for a moment */
+  overflow-y: hidden;
   border-radius: var(--r-lg);
 }
 
