@@ -1,2 +1,4 @@
 # The reconstructions are served from object storage (.env.production), not from the deployment.
 public/splats
+# The detector's ONNX file is read from object storage too (NEXT_PUBLIC_DETECTOR_URL).
+public/models

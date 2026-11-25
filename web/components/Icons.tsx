@@ -76,6 +76,12 @@ export const Pause = (p: P) => (
   </svg>
 );
 
+export const Upload = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M8 10.5v-8M4.75 5.5 8 2.25l3.25 3.25M2.5 10.5v3h11v-3" />
+  </svg>
+);
+
 export const External = (p: P) => (
   <svg {...base} {...p}>
     <path d="M9.5 2.5h4v4M13.5 2.5 7.5 8.5M12 9.5v4H2.5V4h4" />

@@ -1,0 +1,247 @@
+.page {
+  padding: var(--s-8) 0 var(--s-9);
+}
+
+.head {
+  margin-bottom: var(--s-6);
+}
+
+.file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The frame takes the photo's shape: as wide as the column allows, but never taller than most of the screen. */
+.frame {
+  --aspect: 1.7778;
+  display: grid;
+  gap: var(--s-3);
+  width: min(100%, max(320px, calc(50svh * var(--aspect) + 16px)));
+  margin: 0 auto;
+  padding: 8px 8px var(--s-3);
+  border-radius: var(--r-xl) !important;
+}
+
+.frame[data-photo="false"] {
+  width: min(100%, 960px);
+}
+
+.screen {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: var(--aspect);
+  border-radius: calc(var(--r-xl) - 8px);
+  corner-shape: squircle;
+  background: #0b0b0d;
+  transition: box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.frame[data-photo="false"] .screen {
+  aspect-ratio: auto;
+  min-height: min(52svh, 440px);
+  background: rgb(255 255 255 / 0.03);
+  box-shadow: inset 0 0 0 1px var(--separator);
+}
+
+.screen[data-over="true"] {
+  box-shadow: inset 0 0 0 2px var(--red);
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--s-4);
+  padding: var(--s-5);
+  text-align: center;
+}
+
+.emptyIcon {
+  width: 36px;
+  height: 36px;
+  color: var(--label-2);
+}
+
+.emptyTitle {
+  font-size: var(--t-title3);
+  font-weight: 600;
+}
+
+/* what the detector is doing, over the photo */
+.status {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 1;
+  display: grid;
+  gap: var(--s-2);
+  max-width: calc(100% - 28px);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md) !important;
+  font-size: var(--t-footnote);
+  font-weight: 600;
+}
+
+.frame[data-photo="false"] .status {
+  right: 14px;
+  justify-items: center;
+  text-align: center;
+}
+
+.meter {
+  display: block;
+  width: min(240px, 60vw);
+  height: 4px;
+  overflow: hidden;
+  border-radius: var(--r-capsule);
+  background: var(--fill);
+}
+
+.meter > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #fff;
+  transition: width var(--dur-fast) linear;
+}
+
+.retry {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0 var(--s-4);
+  border: 0;
+  border-radius: var(--r-capsule);
+  background: var(--fill);
+  font-size: var(--t-footnote);
+  font-weight: 600;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3) var(--s-5);
+  min-height: 48px;
+  padding: 0 var(--s-2) 0 var(--s-3);
+}
+
+.note {
+  flex: 1 1 240px;
+  font-size: var(--t-footnote);
+  color: var(--label-2);
+}
+
+.figures {
+  display: flex;
+  flex: 1 1 auto;
+  gap: var(--s-5);
+  margin: 0;
+}
+
+.figures > div {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.figures dt {
+  font-size: var(--t-caption);
+  color: var(--label-2);
+}
+
+.figures dd {
+  margin: 0;
+  font-size: var(--t-title2);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.another {
+  margin-left: auto;
+  border: 0;
+  font-size: var(--t-sub);
+}
+
+.samples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3) var(--s-4);
+  margin-top: var(--s-5);
+  font-size: var(--t-footnote);
+  color: var(--label-2);
+}
+
+.samples ul {
+  display: flex;
+  gap: var(--s-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sample {
+  display: block;
+  overflow: hidden;
+  width: 96px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  box-shadow: 0 0 0 1px var(--separator-strong);
+  transition: transform var(--dur) var(--spring);
+}
+
+.sample:hover {
+  transform: scale(1.05);
+}
+
+.sample:active {
+  transform: scale(0.96);
+}
+
+.sample img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .figures {
+    gap: var(--s-4);
+  }
+
+  .another {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sample,
+  .meter > span {
+    transition: none;
+  }
+}

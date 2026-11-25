@@ -53,6 +53,15 @@ reuses the same crack model for on-device inspection.
 
 ## Gallery
 
+**A tour of the website**, two and a half minutes long, with Thai and English captions. It goes through the home
+page, detects the cracks in two sample photos on the `/detect` page, and then opens sections 2 and 7 in the viewer.
+The preview below shows three moments of it (full video:
+[`samples/videos/site_tour/road_crack_3d_site_tour.mp4`](samples/videos/site_tour/road_crack_3d_site_tour.mp4)).
+It was recorded from a local build: the waits for the reconstructions to download are cut out, and the detector's
+model was read from the same machine.
+
+<p align="center"><a href="samples/videos/site_tour/road_crack_3d_site_tour.mp4"><img src="docs/media/site_tour.webp" width="80%" alt="The home page's live point cloud, cracks spreading over a photo on the detect page, and the 3D viewer; opens the full tour video"></a></p>
+
 **All eight road sections with the crack highlight on**, as shown in the browser viewer.
 
 <p align="center"><img src="docs/media/all_sections_crack_highlight.jpg" width="100%" alt="The eight reconstructed road sections with cracks highlighted in red"></p>
@@ -86,19 +95,20 @@ More material is in [`samples/`](samples):
 - preview sheets for all eight sections (`previews/cracks`, `previews/difix_before_after`);
 - orbit renders;
 - per-section video detections;
-- six streaming-simulation clips.
+- six streaming-simulation clips;
+- the tour of the website (`videos/site_tour`).
 
 ## Repository structure
 
 | Path | Content |
 |---|---|
-| `web/` | Website and 3D viewer (Next.js 16, three.js, GaussianSplats3D, react-three-fiber) in a Liquid Glass interface; the eight reconstructions in `public/splats/` (`*.ksplat` via Git LFS, crack labels `*.cracks.bin`); build tools in `web/tools/` (label transfer `crack_labels.py`, crack measurements `crack_metrics.mjs`, the home page's point cloud `hero_points.mjs`, `.ksplat` conversion, screenshots) |
+| `web/` | Website and 3D viewer (Next.js 16, three.js, GaussianSplats3D, react-three-fiber) in a Liquid Glass interface; the eight reconstructions in `public/splats/` (`*.ksplat` via Git LFS, crack labels `*.cracks.bin`); build tools in `web/tools/` (label transfer `crack_labels.py`, crack measurements `crack_metrics.mjs`, the home page's point cloud `hero_points.mjs`, `.ksplat` conversion, screenshots); the `/detect` page runs the crack detector in the visitor's browser |
 | `gaussian_splatting/` | Clip-to-reconstruction driver (`clips_to_splats.ps1`), gsplat set-up and training, floater removal, web export, orbit rendering |
 | `export/colmap_pipeline/` | Frame extraction (sharpest frame per interval) and COLMAP Structure-from-Motion for video |
 | `depth/` | Depth Anything 3 inference and alignment of the depth maps to the sparse SfM points |
 | `asset_pipeline/` | COLMAP binary model reader used by `depth/` |
 | `difix/` | Difix3D+ refinement: novel-view rendering, repair and fine-tuning |
-| `edge_ai/` | Video inference with temporal stabilisation, streaming simulation, TensorRT BF16/NVFP4 export and benchmarks |
+| `edge_ai/` | Video inference with temporal stabilisation, streaming simulation, TensorRT BF16/NVFP4 export and benchmarks, and the ONNX export for the website's `/detect` page |
 | `models/deepcrack/` | The two crack-detector packages (inference code, weights, documentation in Thai) |
 | `tools/` | `blur_vehicles.py`, used to anonymise the sample videos |
 | `samples/` | Preview sheets and result videos |
@@ -207,6 +217,16 @@ stabilises the result over time.
 
 `edge_ai/trt_crack.py` exports the model to ONNX and builds TensorRT engines. Each engine has two fixed
 optimisation profiles: portrait 544×960 and landscape 960×544.
+
+`edge_ai/onnx_web.py` writes the same model as one ONNX file for the website's `/detect` page.
+- Large weight tensors are stored as float16 and cast back to float32 when the model loads, which halves the
+  file to 110 MB. The graph still computes in float32, so it runs on every onnxruntime backend.
+- The page runs it with onnxruntime-web in a worker: on WebGPU where the browser has it, otherwise on
+  WebAssembly with several threads.
+- The photo is shrunk to 960 px on the long side, as the video frames are. The threshold is 0.16 and regions
+  under 150 px at the photo's own size are dropped.
+- On three road photos the file's masks match the PyTorch package's at IoU 0.9998 or better.
+- The detected cracks then spread over the photo from its middle, as on the home page.
 
 ## Crack segmentation model
 
@@ -347,6 +367,13 @@ npm start                    # http://localhost:3000 ; viewer at /viewer/1 … /
 
 Use `npm run dev` for development.
 
+The `/detect` page runs the crack detector on a photo the visitor chooses. It needs the model as an ONNX file,
+which is not committed; write it once (in the `.venv-trt` environment):
+
+```powershell
+python -I edge_ai\onnx_web.py web\public\models\deepcrack_1class_2026-11-20.web.onnx
+```
+
 The site is built with Next.js 16 (App Router, Cache Components) and three.js: GaussianSplats3D 0.4.7 for the
 viewer, react-three-fiber and drei for the home page's point cloud.
 Its interface follows Apple's Liquid Glass design language:
@@ -387,6 +414,10 @@ To serve them from your own storage:
    cross-origin `GET` requests from the site.
 2. Set `NEXT_PUBLIC_SPLAT_BASE_URL` to the folder's public URL, in `web/.env.production` or in the host's
    environment variables.
+
+`web/.env.production` sets `NEXT_PUBLIC_DETECTOR_URL` in the same way: the address of the 110 MB ONNX file that
+the `/detect` page downloads, kept in the same bucket under `models/`. Upload the file `edge_ai/onnx_web.py`
+writes and point the variable at it. Without the variable the page looks in `web/public/models/`.
 
 `web/.env.production` also sets `NEXT_PUBLIC_SITE_URL` (absolute Open Graph URLs) to the demo's address and
 `NEXT_PUBLIC_REPO_URL` (the GitHub links in the method section and the footer) to this repository; change both
@@ -457,6 +488,7 @@ python -I -m modelopt.onnx.autocast --onnx_path crack.onnx --output_path crack_b
 python -I edge_ai\trt_crack.py build crack_bf16.onnx crack_bf16.engine --strongly-typed
 python -I edge_ai\trt_crack.py check crack_bf16.engine
 python -I edge_ai\stream_sim.py STREAM_1080p.mp4 OUT.mp4 --engine crack_bf16.engine
+python -I edge_ai\onnx_web.py crack_web.onnx [--check PHOTO ...]
 ```
 
 TensorRT 11 builds strongly typed networks only, so the ONNX graph is converted to BF16 before the build.
@@ -483,6 +515,9 @@ four adaptations for Model Optimizer 0.48 and TensorRT 11.5 on Windows, all impl
   CUDA toolkit (`CUDA_HOME` or `CUDA_PATH`) and Microsoft Edge (`EDGE_PATH`) in their usual locations.
 
 ## Privacy
+
+A photo chosen on the website's `/detect` page is processed in the visitor's browser. It is not uploaded and
+not stored; the page's only downloads are the model and the runtime.
 
 Vehicles in the sample videos are blurred with `tools/blur_vehicles.py`, so that number plates cannot be read.
 - Vehicles are found with Mask2Former [[8]](#ref-8), using COCO instance segmentation, on every third frame.

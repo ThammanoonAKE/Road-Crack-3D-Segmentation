@@ -60,6 +60,8 @@ Each material combines:
 | Capsule buttons | `ui.primary`, `ui.secondary` | Primary is tinted red glass; secondary is clear glass; both are 48 px high |
 | Before/after slider | `CompareSlider` | `role="slider"`; arrow keys (Shift for ×5), Home/End; the knob is a glass lens |
 | Live point cloud | `HeroCloud` | Section 2 as about 180,000 points (react-three-fiber, drei); the stage is dark until it forms. The hero photograph is only its fallback |
+| Crack reveal | `CrackReveal` | A photograph with its detected cracks: one fragment shader on a WebGL canvas, with the hero's red, front and pulse. Used by `/detect` and by the home page's last section. Painted once on a 2D canvas without WebGL |
+| Photo frame | `detect/DetectApp` | The `/detect` page: a glass frame that takes the photo's shape, a drop target with a file button, a status chip over the photo, and a bar with the result figures, the view control and *choose another photo* |
 | Crack trace | `CrackTrace` | Centre lines traced from section 2, drawn over the hero photograph when the point cloud is not shown; static under reduced motion |
 | Inset grouped list | `Method`, viewer sheet | iOS Settings-style rows with inset hairline separators |
 | Floating toolbar | `viewer/ViewerApp` | Tab-bar capsule: highlight (labelled), auto-rotate, reset, full screen, panel |
@@ -72,6 +74,7 @@ Motion shows the data or answers the pointer. Nothing moves only for decoration.
 |---|---|---|
 | Hero | The road condenses out of dust, a scan line crosses it, the camera drifts and leans towards the mouse; in *Crack trace* the red spreads along the cracks from the middle | `HeroCloud`: one shader on a three.js point cloud, drei `Sparkles` for the dust |
 | Sections of the home page | Each part plays an entrance as it scrolls into view. Kickers slide in from the left, titles come out of a blur, cards and panels rise one after another, the method steps arrive from the right with their numbers springing in, the Edge AI clip and its table come from opposite sides, the figure tiles zoom in, table rows follow their panel, and the red bars fill from the left | `data-reveal` rules in `globals.css`, started by `ScrollReveal` (an IntersectionObserver) |
+| `/detect` and the home page's last section | A scan line sweeps the photo while the detector works; when it finishes, the red spreads along the detected cracks from the middle of the photo and then pulses. *Crack trace* replays it, *Highlight* dims the rest | `CrackReveal`: the hero's shader constants on a photograph |
 | Section cards | A card leans towards the mouse and a highlight follows it | `SectionGrid`: CSS variables set on `pointermove` |
 | Viewer | The camera glides down to its opening pose when a section has loaded | `SplatController.flyIn` |
 
@@ -79,6 +82,8 @@ Motion shows the data or answers the pointer. Nothing moves only for decoration.
 - Under `prefers-reduced-motion: reduce` the hero keeps its photograph, entrances do not play, cards
   do not lean and the viewer opens on its pose.
 - The point cloud is also skipped when the browser asks to save data or has no WebGL.
+- Under reduced motion `CrackReveal` shows the finished result at once, with no scan line and no pulse. It stops
+  drawing while it is off screen.
 - Entrances hide nothing until `ScrollReveal` runs, so without JavaScript every element is in place. Elements
   already on screen when the page opens are left as they are.
 - The hero stops drawing while it is scrolled out of view, and drops to 1× pixel density if frames slow down.

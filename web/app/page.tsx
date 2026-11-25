@@ -1,3 +1,4 @@
+import { DetectTeaser } from "@/components/DetectTeaser";
 import { EdgeAI } from "@/components/EdgeAI";
 import { Hero } from "@/components/Hero";
 import { Method } from "@/components/Method";
@@ -19,6 +20,7 @@ export default function Home() {
         <Method />
         <EdgeAI />
         <ModelSection />
+        <DetectTeaser />
       </main>
       <SiteFooter />
       <ScrollReveal />

@@ -40,3 +40,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# onnxruntime-web, copied from node_modules by tools/copy_ort.mjs
+/public/ort/
+# the detector for /detect (edge_ai/onnx_web.py writes it); the deployed site reads it from the bucket
+/public/models/
