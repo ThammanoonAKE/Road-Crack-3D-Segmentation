@@ -28,7 +28,7 @@ async function download(url) {
   let cache = null;
   try {
     cache = await caches.open(CACHE);
-    const hit = await cache.match(url);
+    const hit = await cache.match(url, { ignoreVary: true }); // the home page may have stored it already
     if (hit) return new Uint8Array(await hit.arrayBuffer());
   } catch {
     cache = null; // private windows and old browsers: download every time

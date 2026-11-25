@@ -1,4 +1,5 @@
 import { DetectTeaser } from "@/components/DetectTeaser";
+import { DetectorWarmup } from "@/components/DetectorWarmup";
 import { EdgeAI } from "@/components/EdgeAI";
 import { Hero } from "@/components/Hero";
 import { Method } from "@/components/Method";
@@ -24,6 +25,7 @@ export default function Home() {
       </main>
       <SiteFooter />
       <ScrollReveal />
+      <DetectorWarmup />
     </>
   );
 }

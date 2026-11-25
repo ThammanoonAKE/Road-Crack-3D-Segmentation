@@ -1,13 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CrackReveal, type RevealMode } from "@/components/CrackReveal";
 import { Upload } from "@/components/Icons";
 import { useLang } from "@/components/LangProvider";
 import { Segmented } from "@/components/Segmented";
 import ui from "@/components/ui.module.css";
-import { DETECTOR_MB, LONG_SIDE, detect, detectorReady, loadDetector, shrink, type Detection } from "@/lib/detector";
+import { DETECTOR_MB, LONG_SIDE, detect, detectorReady, loadDetector, metered, shrink, type Detection } from "@/lib/detector";
 import styles from "./DetectApp.module.css";
 
 type Phase = "idle" | "model" | "detecting" | "done" | "error";
@@ -27,6 +27,7 @@ export function DetectApp() {
   const [photo, setPhoto] = useState<HTMLCanvasElement | null>(null);
   const [phase, setPhase] = useState<Phase>("idle");
   const [progress, setProgress] = useState(0);
+  const [ready, setReady] = useState(detectorReady);
   const [result, setResult] = useState<Detection | null>(null);
   const [failure, setFailure] = useState<Failure | null>(null);
   const [mode, setMode] = useState<RevealMode>("trace");
@@ -36,6 +37,16 @@ export function DetectApp() {
   const last = useRef<Blob | null>(null);
   const picker = useRef<HTMLInputElement>(null);
   const mask = useMemo(() => result && { data: result.mask, width: result.width, height: result.height }, [result]);
+
+  // The model is fetched and opened as soon as the page is, so the first photo starts at once; from the home page
+  // it is usually in the browser's cache already. On a metered connection it waits for the first photo.
+  useEffect(() => {
+    if (metered()) return;
+    loadDetector(setProgress).then(
+      () => setReady(true),
+      () => {}, // the first photo tries again and reports the failure
+    );
+  }, []);
 
   const analyse = async (source: Blob) => {
     const id = ++job.current;
@@ -72,6 +83,7 @@ export function DetectApp() {
     } catch {
       return fail("model");
     }
+    setReady(true);
     if (!current()) return;
     setPhase("detecting");
     try {
@@ -123,6 +135,16 @@ export function DetectApp() {
           : phase === "done" && result && result.share === 0
             ? d.none
             : "";
+  // under the photo, until there is a result: where the model is
+  const note = ready
+    ? phase === "idle"
+      ? d.ready
+      : ""
+    : phase === "idle" && progress > 0
+      ? percent < 100
+        ? d.downloading(percent)
+        : d.preparing
+      : d.note(DETECTOR_MB);
   const share = result ? (100 * result.share).toFixed(result.share < 0.1 ? 1 : 0) : "";
   const seconds = result ? (result.ms / 1000).toFixed(result.ms < 9950 ? 1 : 0) : "";
 
@@ -226,7 +248,7 @@ export function DetectApp() {
                 )}
               </>
             ) : (
-              <p className={styles.note}>{d.note(DETECTOR_MB)}</p>
+              <p className={styles.note}>{note}</p>
             )}
             {photo && (
               <button

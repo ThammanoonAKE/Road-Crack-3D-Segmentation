@@ -59,6 +59,33 @@ function start(): Promise<void> {
   });
 }
 
+const CACHE = "crack-model-v1"; // the worker reads the model from the same cache
+let warming: Promise<void> | null = null;
+
+/** True where a 110 MB download should wait until the visitor asks for it: data saver, a slow or a mobile network. */
+export function metered(): boolean {
+  const c = (navigator as { connection?: { saveData?: boolean; type?: string; effectiveType?: string } }).connection;
+  return !!c && (c.saveData === true || c.type === "cellular" || /(^|-)[23]g$/.test(c.effectiveType ?? ""));
+}
+
+/**
+ * Downloads the model into the browser's cache without opening it, at low priority, so that /detect finds it there.
+ * The home page calls this once it has loaded; it does nothing if the model is already stored.
+ */
+export function warmDetector(): Promise<void> {
+  warming ??= (async () => {
+    if (!("caches" in window)) return;
+    const url = new URL(DETECTOR_URL, location.href).href;
+    const cache = await caches.open(CACHE);
+    if (await cache.match(url, { ignoreVary: true })) return;
+    const response = await fetch(url, { priority: "low" });
+    if (response.ok) await cache.put(url, response);
+  })().catch(() => {
+    warming = null; // offline, or storage refused: /detect downloads the model itself
+  });
+  return warming;
+}
+
 /** True once the model is in memory: the next detection starts at once. */
 export const detectorReady = () => opened;
 

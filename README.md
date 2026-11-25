@@ -227,6 +227,9 @@ optimisation profiles: portrait 544×960 and landscape 960×544.
   under 150 px at the photo's own size are dropped.
 - On three road photos the file's masks match the PyTorch package's at IoU 0.9998 or better.
 - The detected cracks then spread over the photo from its middle, as on the home page.
+- The home page fetches the model into the browser's cache in the background once it has loaded, and `/detect`
+  opens it as soon as the page does, so the first photo starts at once. Both wait for the visitor's first photo
+  under data saver or on a slow or mobile network, where the browser reports one.
 
 ## Crack segmentation model
 
